@@ -149,6 +149,10 @@ int main(int argc, char * argv[]) {
     HashFactory hashFactory;
     FileFactory fileFactory;
 
+    // const std::array<string, 6> hashTypes = {
+    //    "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
+    //};
+
     string filepath = "./compile.sh";
     if (argc == 2) {
         filepath = string(argv[1]);
@@ -162,26 +166,26 @@ int main(int argc, char * argv[]) {
         cout << "The SHA1SUM for '" << filepath << "' is: ";
         cout << hash->getStringHashSum() << endl;
     } else {
-        cout << "Error: ";
+        std::cerr << "Error: ";
         switch (file->status())
         {
         case EFileValidStatus::NON_EXISTENT:
-            cout << "File Not Found: ";
+            std::cerr << "File Not Found: ";
             break;
         case EFileValidStatus::IS_DIRECTORY:
-            cout << "Directory given as file: ";
+            std::cerr << "Directory given as file: ";
             break;
         case EFileValidStatus::NOT_PERMISSIVE:
-            cout << "Reading permission refused: ";
+            std::cerr << "Refused permission: ";
             break;
         case EFileValidStatus::NOT_READABLE:
-            cout << "Could not read: ";
+            std::cerr << "Could not read: ";
             break;
         default:
-            cout << "Unknown file status: ";
+            std::cerr << "Unknown file status: ";
             break;
         }
-        cout << file->path() << endl;
+        std::cerr << file->path() << endl;
     }
 	return 0;
 }
