@@ -23,8 +23,8 @@ enum EFileValidStatus {
 
 
 class File {
-        const EFileValidStatus _status;
-        const string _path;
+    const EFileValidStatus _status;
+    const string _path;
     public:
         File(string path, EFileValidStatus status):
             _status{status}, _path{path} {
@@ -71,6 +71,7 @@ class FileFactory {
                 isReadable = true;
             } catch(const std::exception& e) {
                 // TODO: do something here!
+                // NOTE: IDEA: Maybe add this err to some log file.
             }
         }
 
