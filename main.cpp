@@ -52,7 +52,7 @@ class Hash {
     ValidFile* file;
  
     void calculate(void) {
-        this->hashWrapper= this->hashWrapper.getHashFromFile(this->file);
+        this->hashWrapper= this->hashWrapper->getHashFromFile(this->file->getPath());
         this->hashsumWasCalculated = true;
     }
 
@@ -62,8 +62,6 @@ class Hash {
             this->file = file;
         }
         
-
-
         string getStringHashSum() {
             if (this->hashsumWasCalculated) {
                 return this->calculatedHash;
@@ -93,7 +91,7 @@ int main() {
     HashFactory hf;
     ValidFile* f = new ValidFile("compile.sh");
     Hash* h = hf.hashFile("MD5", f);
-    cout << h.getStringHashSum() << endl;
+    cout << h->getStringHashSum() << endl;
     delete f;
     delete h;
 	return 0;
