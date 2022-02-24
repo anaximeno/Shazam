@@ -1,33 +1,23 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <cassert>
+#include <memory>
 #include <queue>
-
-#ifndef __has_include
-  static_assert(false, "__has_include not supported");
-#else
-#if __cplusplus >= 201703L && __has_include(<filesystem>)
-    #include <filesystem>
-    namespace fs = std::filesystem;
-#elif __has_include(<experimental/filesystem>)
-    #include <experimental/filesystem>
-    namespace fs = std::experimental::filesystem;
-#elif __has_include(<boost/filesystem.hpp>)
-    #include <boost/filesystem.hpp>
-    namespace fs = boost::filesystem;
-#endif
-#endif
 
 #include <hashlibpp.h>
 
-using namespace std;
+using std::cout, std::endl, std::string;
+namespace fs = std::filesystem;
 
 
 class File {
     public:
         const string path;
         const bool isValid;
-        File(string path, bool isValid): isValid{isValid}, path{path} {}
+        File(string path, bool isValid): isValid{isValid}, path{path} {
+            //
+        }
 };
 
 
@@ -48,8 +38,8 @@ class FileFactory {
         char byt;
         bool isReadable = false;
 
-        fstream f;
-        f.open(path, ios::in | ios::binary);
+        std::fstream f;
+        f.open(path, std::ios::in | std::ios::binary);
 
         if(f) {
             try {
@@ -73,30 +63,27 @@ class FileFactory {
     }
 
     public:
-        File* createFileType(string path) {
-            return new File(path, this->fileIsValid(path));
+        std::unique_ptr<File> createFileType(string path) {
+            return std::make_unique<File>(path, this->fileIsValid(path));
         }
 };
 
 
 class Hash {
     string calculatedHash;
-    hashwrapper* hashWrapper;
+    std::unique_ptr<hashwrapper> const hasher;
     bool hashsumWasCalculated = false;
-    File* file;
- 
+    std::unique_ptr<File> const file;
+
     void calculate(void) {
-        this->calculatedHash = this
-                        ->hashWrapper
-                        ->getHashFromFile(this->file->path);
+        this->calculatedHash = this->hasher->getHashFromFile(this->file->path);
         this->hashsumWasCalculated = true;
     }
 
     public:
-        Hash(hashwrapper* hashWrapper, File* file) {
+        Hash(std::unique_ptr<hashwrapper> hashWrapper, std::unique_ptr<File> file_ptr):
+            hasher{std::move(hashWrapper)}, file{std::move(file_ptr)} {
             assert(file->isValid);
-            this->hashWrapper = hashWrapper;
-            this->file = file;
         }
 
         string getStringHashSum() {
@@ -112,36 +99,29 @@ class Hash {
 
 class HashFactory: public wrapperfactory {
     public:
-        Hash* createFileHash(string hashtype, File* file) {
+        std::unique_ptr<Hash> createFileHash(string hashtype, std::unique_ptr<File> file) {
             assert(file->isValid);
-            return new Hash(this->create(hashtype), file);
+            auto wrapper = std::unique_ptr<hashwrapper>(this->create(hashtype));
+            return std::make_unique<Hash>(std::move(wrapper), std::move(file));
         }
 };
 
 
-// class Shazam {
-//     public:
-// };
-
-
-
-int main() {
+int main(int argc, char const* argv[]) {
     HashFactory hashFactory;
     FileFactory fileFactory;
     string filepath = "./compile.sh";
 
-    File* file = fileFactory.createFileType(filepath);
+    auto file = fileFactory.createFileType(filepath);
 
     if (file->isValid) {
-        Hash* hash = hashFactory.createFileHash("SHA1", file);
+        auto hash = hashFactory.createFileHash("SHA1", std::move(file));
         cout << "The SHA1SUM for '" << filepath << "' is: ";
         cout << hash->getStringHashSum() << endl;
-        delete hash;
     } else {
         cout << "Could not calculate hash for '" << filepath << "'!" << endl;
         cout << "File is invalid!" << endl;
     }
 
-    delete file;
 	return 0;
 }
