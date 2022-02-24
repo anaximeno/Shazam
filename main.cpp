@@ -11,12 +11,36 @@ using std::cout, std::endl, std::string;
 namespace fs = std::filesystem;
 
 
+// This enum contains a set of possible status of the files
+// that where received to calculate the hashsums.
+enum EFileValidStatus {
+    IS_VALID,
+    NON_EXISTENT,
+    IS_DIRECTORY,
+    NOT_PERMISSIVE,
+    NOT_READABLE
+};
+
+
 class File {
+        const EFileValidStatus _status;
+        const string _path;
     public:
-        const string path;
-        const bool isValid;
-        File(string path, bool isValid): isValid{isValid}, path{path} {
+        File(string path, EFileValidStatus status):
+            _status{status}, _path{path} {
             //
+        }
+
+        string path() {
+            return _path;
+        }
+
+        EFileValidStatus status() {
+            return this->_status;
+        }
+
+        bool isValid() {
+            return this->status() == EFileValidStatus::IS_VALID;
         }
 };
 
@@ -54,17 +78,30 @@ class FileFactory {
         return isReadable;
     }
 
-    bool fileIsValid(string path) {
+    /* This functions takes the path of one file and classifies it as a:
+     * NON_EXISTENT    -> file that wasn't found at the given path
+     * IS_DIRECTORY    -> the path given points to a directory
+     * NON_PERMISSIVE  -> The user don't have permissions to read the file
+     * NOT_READABLE    -> file that cannot be read by some reason
+     * IS_VALID        -> valid file that can be used withoud any problems
+    */
+    EFileValidStatus fileValidStatus(string path) {
         fs::file_status filestatus = fs::status(path);
-        return this->fileExists(filestatus)         && 
-               this->fileIsNotDirectory(filestatus) &&
-               this->fileIsPermissive(filestatus)   &&
-               this->fileIsReadable(path);
+        if (!this->fileExists(filestatus))
+            return EFileValidStatus::NON_EXISTENT;
+        else if (!this->fileIsNotDirectory(filestatus))
+            return EFileValidStatus::IS_DIRECTORY;
+        else if (!this->fileIsPermissive(filestatus))
+            return EFileValidStatus::NOT_PERMISSIVE;
+        else if (!this->fileIsReadable(path))
+            return EFileValidStatus::NOT_READABLE;
+        else
+            return EFileValidStatus::IS_VALID;
     }
 
     public:
         std::unique_ptr<File> createFileType(string path) {
-            return std::make_unique<File>(path, this->fileIsValid(path));
+            return std::make_unique<File>(path, this->fileValidStatus(path));
         }
 };
 
@@ -76,14 +113,14 @@ class Hash {
     std::unique_ptr<File> const file;
 
     void calculate(void) {
-        this->calculatedHash = this->hasher->getHashFromFile(this->file->path);
+        this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
         this->hashsumWasCalculated = true;
     }
 
     public:
         Hash(std::unique_ptr<hashwrapper> hashWrapper, std::unique_ptr<File> file_ptr):
             hasher{std::move(hashWrapper)}, file{std::move(file_ptr)} {
-            assert(file->isValid);
+            assert(file->isValid());
         }
 
         string getStringHashSum() {
@@ -100,21 +137,26 @@ class Hash {
 class HashFactory: public wrapperfactory {
     public:
         std::unique_ptr<Hash> createFileHash(string hashtype, std::unique_ptr<File> file) {
-            assert(file->isValid);
+            assert(file->isValid());
             auto wrapper = std::unique_ptr<hashwrapper>(this->create(hashtype));
             return std::make_unique<Hash>(std::move(wrapper), std::move(file));
         }
 };
 
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char * argv[]) {
     HashFactory hashFactory;
     FileFactory fileFactory;
-    string filepath = "./compile.sh";
 
+    string filepath = "./compile.sh";
+    if (argc == 2) {
+        filepath = string(argv[1]);
+    }
+
+    cout << "Looking for: " << filepath << endl;
     auto file = fileFactory.createFileType(filepath);
 
-    if (file->isValid) {
+    if (file->isValid()) {
         auto hash = hashFactory.createFileHash("SHA1", std::move(file));
         cout << "The SHA1SUM for '" << filepath << "' is: ";
         cout << hash->getStringHashSum() << endl;
