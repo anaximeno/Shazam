@@ -14,7 +14,7 @@ class AbstractFile {
         }
         bool isValid() {
             return this->isValidFile;
-        };
+        }
         string getPath() {
             return this->path;
         }
@@ -52,7 +52,7 @@ class Hash {
     ValidFile* file;
  
     void calculate(void) {
-        this->hashWrapper= this->hashWrapper->getHashFromFile(this->file->getPath());
+        this->calculatedHash = this->hashWrapper->getHashFromFile(this->file->getPath());
         this->hashsumWasCalculated = true;
     }
 
@@ -81,9 +81,9 @@ class HashFactory: public wrapperfactory {
 };
 
 
-class Shazam {
-    public:
-};
+// class Shazam {
+//     public:
+// };
 
 
 
@@ -92,7 +92,6 @@ int main() {
     ValidFile* f = new ValidFile("compile.sh");
     Hash* h = hf.hashFile("MD5", f);
     cout << h->getStringHashSum() << endl;
-    delete f;
-    delete h;
+    delete f, h;
 	return 0;
 }
