@@ -161,9 +161,26 @@ int main(int argc, char * argv[]) {
         cout << "The SHA1SUM for '" << filepath << "' is: ";
         cout << hash->getStringHashSum() << endl;
     } else {
-        cout << "Could not calculate hash for '" << filepath << "'!" << endl;
-        cout << "File is invalid!" << endl;
+        cout << "Error: ";
+        switch (file->status())
+        {
+        case EFileValidStatus::NON_EXISTENT:
+            cout << "File Not Found: ";
+            break;
+        case EFileValidStatus::IS_DIRECTORY:
+            cout << "Directory given as file: ";
+            break;
+        case EFileValidStatus::NOT_PERMISSIVE:
+            cout << "Reading permission refused: ";
+            break;
+        case EFileValidStatus::NOT_READABLE:
+            cout << "Could not read: ";
+            break;
+        default:
+            cout << "Unknown file status: ";
+            break;
+        }
+        cout << file->path() << endl;
     }
-
 	return 0;
 }
