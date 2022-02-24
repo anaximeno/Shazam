@@ -46,18 +46,31 @@ class FileFactory {
 
 
 class Hash {
-    string calculatedHash = "";
-    hashwrapper* hashWrapperInstance;
+    string calculatedHash;
+    hashwrapper* hashWrapper;
+    bool hashsumWasCalculated = false;
     ValidFile* file;
-    void calculate();
+ 
+    void calculate(void) {
+        this->hashWrapper= this->hashWrapper.getHashFromFile(this->file);
+        this->hashsumWasCalculated = true;
+    }
 
     public:
-        Hash(hashwrapper* hashWrapperInstance, ValidFile* file) {
-            this->hashWrapperInstance = hashWrapperInstance;
+        Hash(hashwrapper* hashWrapper, ValidFile* file) {
+            this->hashWrapper = hashWrapper;
             this->file = file;
         }
+        
 
-        string getStringHashSum();
+
+        string getStringHashSum() {
+            if (this->hashsumWasCalculated) {
+                return this->calculatedHash;
+            } this->calculate();
+            return this->getStringHashSum();
+        }
+        
         int getIntHashSum();
 };
 
@@ -77,12 +90,11 @@ class Shazam {
 
 
 int main() {
-    hashwrapper *h = new md5wrapper();
-    h->test();
-    std::string md5 = h->getHashFromString("hello world");
-    std::cout << md5 << std::endl;
+    HashFactory hf;
+    ValidFile* f = new ValidFile("compile.sh");
+    Hash* h = hf.hashFile("MD5", f);
+    cout << h.getStringHashSum() << endl;
+    delete f;
     delete h;
-
-	cout << "hello world" << endl; 
 	return 0;
 }
