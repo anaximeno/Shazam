@@ -14,7 +14,7 @@ make install
 Then to compile the program, return to the root dir of this program and compile it using:
 
 ```bash
-g++ main.cpp -I/usr/include/hashlib++/ -lhl++ -o main
+g++ main.cpp -I/usr/include/hashlib++/ -lhl++ -std=c++17 -o main
 ```
 
 Or using the compile.sh script:
