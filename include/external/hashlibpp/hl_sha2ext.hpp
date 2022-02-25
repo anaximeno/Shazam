@@ -631,7 +631,7 @@ namespace hlibpp_sha2ext {
 		}
 
 		/* Zero out state data */
-		MEMSET_BZERO(context, sizeof(context));
+		MEMSET_BZERO(context, sizeof(*context));
 	}
 
 	char* SHA2ext::SHA512_End(HL_SHA512_CTX* context, char buffer[])
@@ -652,7 +652,7 @@ namespace hlibpp_sha2ext {
 			}
 			*buffer = (char)0;
 		} else {
-			MEMSET_BZERO(context, sizeof(context));
+			MEMSET_BZERO(context, sizeof(*context));
 		}
 		MEMSET_BZERO(digest, SHA512_DIGEST_LENGTH);
 		return buffer;
@@ -700,7 +700,7 @@ namespace hlibpp_sha2ext {
 		}
 
 		/* Zero out state data */
-		MEMSET_BZERO(context, sizeof(context));
+		MEMSET_BZERO(context, sizeof(*context));
 	}
 
 	char* SHA2ext::SHA384_End(HL_SHA_384_CTX* context, char buffer[])
@@ -721,7 +721,7 @@ namespace hlibpp_sha2ext {
 			}
 			*buffer = (char)0;
 		} else {
-			MEMSET_BZERO(context, sizeof(context));
+			MEMSET_BZERO(context, sizeof(*context));
 		}
 		MEMSET_BZERO(digest, SHA384_DIGEST_LENGTH);
 		return buffer;

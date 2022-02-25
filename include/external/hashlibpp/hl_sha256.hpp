@@ -567,7 +567,7 @@ namespace hlibpp_sha256 {
 		}
 
 		/* Clean up state data: */
-		MEMSET_BZERO(context, sizeof(context));
+		MEMSET_BZERO(context, sizeof(*context));
 		usedspace = 0;
 	}
 
@@ -595,7 +595,7 @@ namespace hlibpp_sha256 {
 			}
 			*buffer = (char)0;
 		} else {
-			MEMSET_BZERO(context, sizeof(context));
+			MEMSET_BZERO(context, sizeof(*context));
 		}
 		MEMSET_BZERO(digest, SHA256_DIGEST_LENGTH);
 		return buffer;
