@@ -12,6 +12,7 @@
 
 namespace shazam {
     namespace fs = std::filesystem;
+    using std::string;
 
     /* Enum FileValidStatus Values:
         NON_EXISTENT    -> file that wasn't found at the given path
@@ -35,14 +36,14 @@ namespace shazam {
 
     class File {
         const EFileValidStatus _status;
-        const std::string _path;
+        const string _path;
         public:
-            File(std::string path, EFileValidStatus status):
+            File(string path, EFileValidStatus status):
                 _status{status}, _path{path} {
                 //
             }
 
-            std::string path() {
+            string path() {
                 return this->_path;
             }
 
@@ -68,7 +69,7 @@ namespace shazam {
             return (filestatus.permissions() & fs::perms::owner_read) != fs::perms::none;
         }
 
-        bool fileIsReadable(std::string path) {
+        bool fileIsReadable(string path) {
             char byt;
             bool isReadable = false;
 
@@ -90,7 +91,7 @@ namespace shazam {
         }
 
         protected:
-            EFileValidStatus fileValidStatus(std::string path) {
+            EFileValidStatus fileValidStatus(string path) {
                 fs::file_status filestatus = fs::status(path);
                 if (!this->fileExists(filestatus))
                     return EFileValidStatus::NON_EXISTENT;
@@ -105,17 +106,17 @@ namespace shazam {
             }
 
         public:
-            std::shared_ptr<File> create(std::string path) {
+            std::shared_ptr<File> create(string path) {
                 return std::make_shared<File>(path, this->fileValidStatus(path));
             }
     };
 
 
     class Hash {
-        std::string calculatedHash;
+        string calculatedHash;
         const std::unique_ptr<hashwrapper> hasher;
         const std::shared_ptr<File> file;
-        const std::string _type;
+        const string _type;
         bool hashsumWasCalculated = false;
 
         protected:
@@ -125,25 +126,24 @@ namespace shazam {
             }
 
         public:
-            Hash(std::string hashname,
-                std::unique_ptr<hashwrapper> hashWrapper,
+            Hash(string hashname,
+                std::unique_ptr<hashwrapper> wrapper,
                 std::shared_ptr<File> file_ptr
-            ):
-                hasher{std::move(hashWrapper)},
+            ) : hasher{std::move(wrapper)},
                 file{file_ptr},
                 _type{hashname}
             {
                 assert(file->isValid());
             }
 
-            std::string getStringHashSum() {
+            string getStringHashSum() {
                 if (this->hashsumWasCalculated) {
                     return this->calculatedHash;
                 } this->calculate();
                 return this->getStringHashSum();
             }
 
-            std::string type() {
+            string type() {
                 return this->_type;
             }
 
@@ -152,13 +152,13 @@ namespace shazam {
 
 
     class HashFactory: public wrapperfactory {
-        const std::array<std::string, 6> validHashTypes = {
+        const std::array<string, 6> validHashTypes = {
             "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
         };
 
         public:
             std::unique_ptr<Hash>
-            createFileHash(std::string hashtype, std::shared_ptr<File> file) {
+            createFileHash(string hashtype, std::shared_ptr<File> file) {
                 assert(file->isValid());
                 auto wrapper = std::unique_ptr<hashwrapper>(this->create(hashtype));
                 return std::make_unique<Hash>(hashtype, std::move(wrapper), file);
