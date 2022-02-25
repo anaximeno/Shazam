@@ -6,13 +6,27 @@
 #include <queue>
 
 #include <hashlibpp.h>
+#include "include/external/argparse.hpp"
+
 
 using std::cout, std::endl, std::string;
+using argparse::ArgumentParser;
+
 namespace fs = std::filesystem;
 
 
-// This enum contains a set of possible status of the files
-// that where received to calculate the hashsums.
+
+/* Values:
+     NON_EXISTENT    -> file that wasn't found at the given path
+
+     IS_DIRECTORY    -> the path given points to a directory
+
+     NON_PERMISSIVE  -> The user don't have permissions to read the file
+
+     NOT_READABLE    -> file that cannot be read by some reason
+
+     IS_VALID        -> valid file that can be used withoud any problems
+*/
 enum EFileValidStatus {
     IS_VALID,
     NON_EXISTENT,
@@ -32,7 +46,7 @@ class File {
         }
 
         string path() {
-            return _path;
+            return this->_path;
         }
 
         EFileValidStatus status() {
@@ -79,26 +93,20 @@ class FileFactory {
         return isReadable;
     }
 
-    /* This functions takes the path of one file and classifies it as a:
-     * NON_EXISTENT    -> file that wasn't found at the given path
-     * IS_DIRECTORY    -> the path given points to a directory
-     * NON_PERMISSIVE  -> The user don't have permissions to read the file
-     * NOT_READABLE    -> file that cannot be read by some reason
-     * IS_VALID        -> valid file that can be used withoud any problems
-    */
-    EFileValidStatus fileValidStatus(string path) {
-        fs::file_status filestatus = fs::status(path);
-        if (!this->fileExists(filestatus))
-            return EFileValidStatus::NON_EXISTENT;
-        else if (!this->fileIsNotDirectory(filestatus))
-            return EFileValidStatus::IS_DIRECTORY;
-        else if (!this->fileIsPermissive(filestatus))
-            return EFileValidStatus::NOT_PERMISSIVE;
-        else if (!this->fileIsReadable(path))
-            return EFileValidStatus::NOT_READABLE;
-        else
-            return EFileValidStatus::IS_VALID;
-    }
+    protected:
+        EFileValidStatus fileValidStatus(string path) {
+            fs::file_status filestatus = fs::status(path);
+            if (!this->fileExists(filestatus))
+                return EFileValidStatus::NON_EXISTENT;
+            else if (!this->fileIsNotDirectory(filestatus))
+                return EFileValidStatus::IS_DIRECTORY;
+            else if (!this->fileIsPermissive(filestatus))
+                return EFileValidStatus::NOT_PERMISSIVE;
+            else if (!this->fileIsReadable(path))
+                return EFileValidStatus::NOT_READABLE;
+            else
+                return EFileValidStatus::IS_VALID;
+        }
 
     public:
         std::unique_ptr<File> createFileType(string path) {
@@ -110,13 +118,14 @@ class FileFactory {
 class Hash {
     string calculatedHash;
     std::unique_ptr<hashwrapper> const hasher;
-    bool hashsumWasCalculated = false;
     std::unique_ptr<File> const file;
+    bool hashsumWasCalculated = false;
 
-    void calculate(void) {
-        this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
-        this->hashsumWasCalculated = true;
-    }
+    protected:
+        void calculate(void) {
+            this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
+            this->hashsumWasCalculated = true;
+        }
 
     public:
         Hash(std::unique_ptr<hashwrapper> hashWrapper, std::unique_ptr<File> file_ptr):
@@ -136,6 +145,10 @@ class Hash {
 
 
 class HashFactory: public wrapperfactory {
+    const std::array<string, 6> validHashTypes = {
+        "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
+    };
+
     public:
         std::unique_ptr<Hash> createFileHash(string hashtype, std::unique_ptr<File> file) {
             assert(file->isValid());
@@ -145,47 +158,126 @@ class HashFactory: public wrapperfactory {
 };
 
 
-int main(int argc, char * argv[]) {
+class Checker {
+    // TODO: implement
+};
+
+
+class App {
     HashFactory hashFactory;
     FileFactory fileFactory;
+    std::unique_ptr<ArgumentParser> argparser;
+    const string name;
 
-    // const std::array<string, 6> hashTypes = {
-    //    "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
-    //};
+    void setupArgparser() {
+        // Must create the argparser first!
+        assert(this->argparser != nullptr);
 
-    string filepath = "./compile.sh";
-    if (argc == 2) {
-        filepath = string(argv[1]);
+        this->argparser->add_argument("filename")
+                        .required()
+                        .help("the name of the file");
+        this->argparser->add_argument("-md5", "--md5sum")
+                        .default_value(false)
+                        .implicit_value(true)
+                        .help("Use this to calculate the md5 hash sum");
+        this->argparser->add_argument("-sha1", "--sha1sum")
+                        .default_value(false)
+                        .implicit_value(true)
+                        .help("Use this to calculate the sha1 hash sum");
+        this->argparser->add_argument("-sha256", "--sha256sum")
+                        .default_value(false)
+                        .implicit_value(true)
+                        .help("Use this to calculate the sha256 hash sum");
+        this->argparser->add_argument("-sha384", "--sha384sum")
+                        .default_value(false)
+                        .implicit_value(true)
+                        .help("Use this to calculate the md5 hash sum");
+        this->argparser->add_argument("-sha512", "--sha512sum")
+                        .default_value(false)
+                        .implicit_value(true)
+                        .help("Use this to calculate the sha512 hash sum");
     }
 
-    cout << "Looking for: " << filepath << endl;
-    auto file = fileFactory.createFileType(filepath);
+    string evaluateFileErr(EFileValidStatus errStatus) {
+        string err;
 
-    if (file->isValid()) {
-        auto hash = hashFactory.createFileHash("SHA1", std::move(file));
-        cout << "The SHA1SUM for '" << filepath << "' is: ";
-        cout << hash->getStringHashSum() << endl;
-    } else {
-        std::cerr << "Error: ";
-        switch (file->status())
+        switch (errStatus)
         {
         case EFileValidStatus::NON_EXISTENT:
-            std::cerr << "File Not Found: ";
+            err = "File Not Found! ";
             break;
         case EFileValidStatus::IS_DIRECTORY:
-            std::cerr << "Directory given as file: ";
+            err = "Directory given as file! ";
             break;
         case EFileValidStatus::NOT_PERMISSIVE:
-            std::cerr << "Refused permission: ";
+            err = "Permission was refused to read the file! ";
             break;
         case EFileValidStatus::NOT_READABLE:
-            std::cerr << "Could not read: ";
+            err = "Can't read the file!";
             break;
         default:
-            std::cerr << "Unknown file status: ";
+            err = "Unknown file status!";
             break;
         }
-        std::cerr << file->path() << endl;
+
+        return err;
     }
-	return 0;
+
+    // INFO: For tests! Will be improved!
+    string exhaustiveGetHashType() {
+        if (this->argparser->is_used("-md5")) {
+            return "MD5";
+        } else if (this->argparser->is_used("-sha1")) {
+            return "SHA1";
+        } else if (this->argparser->is_used("-sha256")) {
+            return "SHA256";
+        } else if (this->argparser->is_used("-sha384")) {
+            return "SHA384";
+        } else if (this->argparser->is_used("-sha512")) {
+            return "SHA512";
+        } else {
+            return "none";
+        }
+    }
+
+    public:
+        App(string name): name{name} {
+            this->argparser = std::make_unique<ArgumentParser>(name);
+            this->setupArgparser();
+        }
+
+        int run(int argc, char** argv) {
+            try {
+                this->argparser->parse_args(argc, argv);
+            } catch (const std::runtime_error& err) {
+                std::cerr << err.what() << endl;
+                std::cerr << *(this->argparser) << endl;
+                std::exit(1);
+            }
+
+            string filepath = this->argparser->get<string>("filename");
+            string hashtype = this->exhaustiveGetHashType();
+            hashtype = hashtype == "none" ? "SHA256" : hashtype;
+
+            cout << "Checking " << hashtype << "SUM for: " << filepath << endl;
+
+            auto file = this->fileFactory.createFileType(filepath);
+
+            if (file->isValid()) {
+                auto hash = this->hashFactory.createFileHash(hashtype, std::move(file));
+                cout << hashtype << "SUM: " << hash->getStringHashSum() << endl;
+            } else {
+                std::cerr << this->evaluateFileErr(file->status()) << endl;
+            }
+
+            return 0;
+        }
+};
+
+
+int main(int argc, char * argv[]) {
+	return std::make_unique<App>(argv[0])->run(argc, argv);
 }
+
+
+// TODO: change the type of pointer of file from unique to shared!
