@@ -11,17 +11,16 @@
 #include "external/argparse.hpp"
 #include "external/progressbar.hpp"
 
-// ---- Commonly used namespaces ------------------------------------
-
-namespace fs = std::filesystem;
-
-using namespace hashlibpp;
-using std::string;
-
 
 // ------------------------------------------------------------------
 
 namespace shazam {
+    // ---- Commonly used namespaces ------------------------------------
+
+    namespace fs = std::filesystem;
+
+    using namespace hashlibpp;
+    using std::string;
 
     /* Enum FileValidStatus Values:
         NON_EXISTENT    -> file that wasn't found at the given path
@@ -156,7 +155,9 @@ namespace shazam {
                 return this->_type;
             }
 
-            int getIntHashSum();
+            int getIntHashSum() {
+                return std::stoi(this->getStringHashSum(), 0, 16);
+            }
     };
 
 
@@ -176,7 +177,7 @@ namespace shazam {
 
     class ProgressObserver {
         // TODO: implement this class
-    }
+    };
     
     class Checker {
         // TODO: implement this class
