@@ -1,19 +1,19 @@
-/* 
+/*
  * hashlib++ - a simple hash library for C++
- * 
- * Copyright (c) 2007-2010 Benjamin Grüdelbach
- * 
+ *
+ * Copyright (c) 2007-2010 Benjamin Grï¿½delbach
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  * 	1)     Redistributions of source code must retain the above copyright
  * 	       notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 	2)     Redistributions in binary form must reproduce the above copyright
  * 	       notice, this list of conditions and the following disclaimer in
  * 	       the documentation and/or other materials provided with the
  * 	       distribution.
- * 	     
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,100 +26,110 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//----------------------------------------------------------------------	
+//----------------------------------------------------------------------
+
+/**
+ * Changes by AnaxÃ­meno Brito:								  [Feb 2022]
+ *
+ * 		This module was alterated to turn it into a hpp module, all
+ *		changes are under the same license of the file.
+ */
+
+//----------------------------------------------------------------------
 
 /**
  *  @file 	hl_exception.h
  *  @brief	This file contains the hashlib++ exception class
  *  @date 	Sa 24 Nov 2007
- */  
+ */
 
 
-//---------------------------------------------------------------------- 
+//----------------------------------------------------------------------
 //include protection
 #ifndef HL_EXCEPTION_H
 #define HL_EXCEPTION_H
 
-//---------------------------------------------------------------------- 
+//----------------------------------------------------------------------
 //STL
 #include <string>
 
 //----------------------------------------------------------------------
 
-/**
- * definition of hashlib++ errornumbers
- */
-typedef enum hlerrors
-{
-	HL_NO_ERROR = 0,
-	HL_FILE_READ_ERROR,
-	HL_VERIFY_TEST_FAILED,
-	HL_UNKNOWN_SEE_MSG,
-	HL_UNKNOWN_HASH_TYPE
-} hlerror;
+namespace hlibpp_exception {
+	/**
+	 * definition of hashlib++ errornumbers
+	 */
+	typedef enum hlerrors
+	{
+		HL_NO_ERROR = 0,
+		HL_FILE_READ_ERROR,
+		HL_VERIFY_TEST_FAILED,
+		HL_UNKNOWN_SEE_MSG,
+		HL_UNKNOWN_HASH_TYPE
+	} hlerror;
 
-//----------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
-/**
- *  @brief	This class represents a exception within the hashlib++
- *  		project
- */  
-class hlException
-{
-	private:
+	/**
+	 *  @brief	This class represents a exception within the hashlib++
+	 *  		project
+	 */
+	class hlException
+	{
+		private:
 
-			/**
-			 * Error Number
-			 */
-			hlerror iError;
+				/**
+				 * Error Number
+				 */
+				hlerror iError;
 
-			/**
-			 * Error message as string
-			 */
-			std::string strMessge;
-			
+				/**
+				 * Error message as string
+				 */
+				std::string strMessge;
 
-	public:
-			/**
-			 *  @brief 	constructor
-			 *  @param	er	Error number
-			 *  @param	m	Error message
-			 */  
-			hlException(hlerror er, std::string m)
-			{
-				this->iError = er;
-				this->strMessge = m;
-			}
 
-			/**
-			 *  @brief 	constructor
-			 *  @param	m	Error Message
-			 */  
-			hlException(std::string m)
-			{
-				this->iError = HL_UNKNOWN_SEE_MSG;
-				this->strMessge = m;
-			}
+		public:
+				/**
+				 *  @brief 	constructor
+				 *  @param	er	Error number
+				 *  @param	m	Error message
+				 */
+				hlException(hlerror er, std::string m)
+				{
+					this->iError = er;
+					this->strMessge = m;
+				}
 
-			/**
-			 *  @brief 	returns the error message
-			 *  @return	the error message
-			 */  
-			std::string error_message(void)
-			{
-				return strMessge;
-			}
+				/**
+				 *  @brief 	constructor
+				 *  @param	m	Error Message
+				 */
+				hlException(std::string m)
+				{
+					this->iError = HL_UNKNOWN_SEE_MSG;
+					this->strMessge = m;
+				}
 
-			/**
-			 *  @brief 	returns the error number
-			 *  @return	the error number
-			 */  
-			hlerror error_number(void)
-			{
-				return iError;
-			}
-};
+				/**
+				 *  @brief 	returns the error message
+				 *  @return	the error message
+				 */
+				std::string error_message(void)
+				{
+					return strMessge;
+				}
 
+				/**
+				 *  @brief 	returns the error number
+				 *  @return	the error number
+				 */
+				hlerror error_number(void)
+				{
+					return iError;
+				}
+	};
+}
 //----------------------------------------------------------------------
 //end of include protection
 #endif

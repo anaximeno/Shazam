@@ -1,7 +1,7 @@
 /* 
  * hashlib++ - a simple hash library for C++
  * 
- * Copyright (c) 2007-2010 Benjamin Grüdelbach
+ * Copyright (c) 2007-2010 Benjamin Grï¿½delbach
  * 
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,7 +29,16 @@
 //----------------------------------------------------------------------
 
 /**
- *  @file 	hashlibpp.h
+ * Changes by AnaxÃ­meno Brito:								  [Feb 2022]
+ *
+ * 		This module was alterated to turn it into a hpp module, all
+ *		changes are under the same license of the file.
+ */
+
+//----------------------------------------------------------------------
+
+/**
+ *  @file 	hashlibpp.hpp
  *  @brief	This file is just an include wrapper
  *  @date 	Sa  2 Feb
  */  
@@ -44,14 +53,26 @@
 
 //----------------------------------------------------------------------
 
-#include "hl_exception.h"
-#include "hl_wrapperfactory.h"
-#include "hl_hashwrapper.h"
-#include "hl_md5wrapper.h"
-#include "hl_sha1wrapper.h"
-#include "hl_sha256wrapper.h"
-#include "hl_sha384wrapper.h"
-#include "hl_sha512wrapper.h"
+#include "hashlibpp/hl_wrapperfactory.hpp"
+#include "hashlibpp/hl_exception.hpp"
+#include "hashlibpp/hl_hashwrapper.hpp"
+#include "hashlibpp/hl_md5wrapper.hpp"
+#include "hashlibpp/hl_sha1wrapper.hpp"
+#include "hashlibpp/hl_sha256wrapper.hpp"
+#include "hashlibpp/hl_sha384wrapper.hpp"
+#include "hashlibpp/hl_sha512wrapper.hpp"
+
+
+namespace hashlibpp {
+    using namespace hlibpp_wrapper_factory;
+    using namespace hlibpp_exception;
+    using namespace hlibpp_wrapper;
+    using namespace hlibpp_md5_wrapper;
+    using namespace hlibpp_sha1_wrapper;
+    using namespace hlibpp_sha256_wrapper;
+    using namespace hlibpp_sha384_wrapper;
+    using namespace hlibpp_sha512_wrapper;
+}
 
 
 //----------------------------------------------------------------------

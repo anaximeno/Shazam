@@ -6,13 +6,14 @@
 #include <queue>
 
 // TODO: turn this into a module inside the include path!!
-#include <hashlibpp.h>
+#include "external/hashlibpp.hpp"
 #include "external/argparse.hpp"
 
+namespace fs = std::filesystem;
+using namespace hashlibpp;
+using std::string;
 
 namespace shazam {
-    namespace fs = std::filesystem;
-    using std::string;
 
     /* Enum FileValidStatus Values:
         NON_EXISTENT    -> file that wasn't found at the given path
