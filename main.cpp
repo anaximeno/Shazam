@@ -240,6 +240,16 @@ class App {
         }
     }
 
+    void parse(int argc, char** argv) {
+        try {
+            this->argparser->parse_args(argc, argv);
+        } catch (const std::runtime_error& err) {
+            std::cerr << err.what() << endl;
+            std::cerr << *(this->argparser) << endl;
+            std::exit(1);
+        }
+    }
+
     public:
         App(string name): name{name} {
             this->argparser = std::make_unique<ArgumentParser>(name);
@@ -247,13 +257,7 @@ class App {
         }
 
         int run(int argc, char** argv) {
-            try {
-                this->argparser->parse_args(argc, argv);
-            } catch (const std::runtime_error& err) {
-                std::cerr << err.what() << endl;
-                std::cerr << *(this->argparser) << endl;
-                std::exit(1);
-            }
+            this->parse(argc, argv);
 
             string filepath = this->argparser->get<string>("filename");
             string hashtype = this->exhaustiveGetHashType();
