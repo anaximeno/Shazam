@@ -9,8 +9,8 @@ using argparse::ArgumentParser;
 class App {
     shazam::HashFactory hashFactory;
     shazam::FileFactory fileFactory;
-    std::unique_ptr<ArgumentParser> args;
     const string name;
+    std::unique_ptr<ArgumentParser> args;
 
     void setupArgparser() {
         // Must create the args first!
