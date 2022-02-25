@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-#include "tinytest.h"
+#include "./include/tinytest.h"
 #include "../include/shazam.hpp"
 
 
