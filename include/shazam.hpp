@@ -108,8 +108,8 @@ namespace shazam {
             }
 
         public:
-            std::unique_ptr<File> createFileType(string path) {
-                return std::make_unique<File>(path, this->fileValidStatus(path));
+            std::shared_ptr<File> createFileType(string path) {
+                return std::make_shared<File>(path, this->fileValidStatus(path));
             }
     };
 
@@ -117,7 +117,7 @@ namespace shazam {
     class Hash {
         string calculatedHash;
         std::unique_ptr<hashwrapper> const hasher;
-        std::unique_ptr<File> const file;
+        std::shared_ptr<File> const file;
         bool hashsumWasCalculated = false;
 
         protected:
@@ -127,8 +127,8 @@ namespace shazam {
             }
 
         public:
-            Hash(std::unique_ptr<hashwrapper> hashWrapper, std::unique_ptr<File> file_ptr):
-                hasher{std::move(hashWrapper)}, file{std::move(file_ptr)} {
+            Hash(std::unique_ptr<hashwrapper> hashWrapper, std::shared_ptr<File> file_ptr):
+                hasher{std::move(hashWrapper)}, file{file_ptr} {
                 assert(file->isValid());
             }
 
@@ -150,10 +150,10 @@ namespace shazam {
 
         public:
             std::unique_ptr<Hash>
-            createFileHash(string hashtype, std::unique_ptr<File> file) {
+            createFileHash(string hashtype, std::shared_ptr<File> file) {
                 assert(file->isValid());
                 auto wrapper = std::unique_ptr<hashwrapper>(this->create(hashtype));
-                return std::make_unique<Hash>(std::move(wrapper), std::move(file));
+                return std::make_unique<Hash>(std::move(wrapper), file);
             }
     };
 

@@ -114,7 +114,7 @@ class App {
             auto file = this->fileFactory.createFileType(filepath);
 
             if (file->isValid()) {
-                auto hash = this->hashFactory.createFileHash(hashtype, std::move(file));
+                auto hash = this->hashFactory.createFileHash(hashtype, file);
                 cout << hashtype << "SUM: " << hash->getStringHashSum() << endl;
             } else {
                 std::cerr << this->evaluateFileErr(file->status()) << endl;
@@ -128,6 +128,3 @@ class App {
 int main(int argc, char * argv[]) {
 	return std::make_unique<App>(argv[0])->run(argc, argv);
 }
-
-
-// TODO: change the type of pointer of file from unique to shared!
