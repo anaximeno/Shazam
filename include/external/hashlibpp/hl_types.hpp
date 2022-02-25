@@ -1,7 +1,7 @@
 /* 
  * hashlib++ - a simple hash library for C++
  * 
- * Copyright (c) 2007-2010 Benjamin Grüdelbach
+ * Copyright (c) 2007-2010 Benjamin Grï¿½delbach
  * 
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -27,6 +27,18 @@
  */
 
 //----------------------------------------------------------------------	
+
+/**
+ * Changes by AnaxÃ­meno Brito:								  [Feb 2022]
+ *
+ * 		This module was altered to turn it into a hpp module,
+ *      all changes are under the same original license of the file
+ * 		which could (in that moment) be found at:
+ * 
+ * 			http://hashlib2plus.sourceforge.net/index.html
+ */
+
+//----------------------------------------------------------------------
 
 /**
  *  @file 	hl_types.h

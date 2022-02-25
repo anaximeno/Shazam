@@ -64,6 +64,18 @@
 //---------------------------------------------------------------------- 
 
 /**
+ * Changes by Anaxímeno Brito:								  [Feb 2022]
+ *
+ * 		This module was altered to turn it into a hpp module,
+ *      all changes are under the same original license of the file
+ * 		which could (in that moment) be found at:
+ * 
+ * 			http://hashlib2plus.sourceforge.net/index.html
+ */
+
+//----------------------------------------------------------------------
+
+/**
  *  @file 	hl_sha2mac.h
  *  @brief	This file contains useful macros for use with SHA384
  *  		and SHA512
