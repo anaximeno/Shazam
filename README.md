@@ -4,17 +4,10 @@ This is a tool for calculating different type of hash sums like MD5, SHA256, etc
 ***It is on a very initial phase, you should not use it on your main machine already.***
 
 ### Build
-Before building you must install the required library hashlibpp, and to do so, you'll have to go inside the directory 'hashlib2plus/truck/src/' and install it using 'make install', like shown below:
+To compile the program, execute to following command on the root dir of the program:
 
 ```bash
-cd hashlib2plus/truck/src/
-make install
-```
-
-Then to compile the program, return to the root dir of this program and compile it using:
-
-```bash
-g++ main.cpp -I/usr/include/hashlib++/ -lhl++ -std=c++17 -o main
+g++ main.cpp -std=c++17 -o main
 ```
 
 Or using the compile.sh script:
@@ -22,9 +15,22 @@ Or using the compile.sh script:
 sh compile.sh
 ```
 
-
 Finally execute it using:
 
 ```bash
 ./main
+```
+
+### Usage
+
+To calculate the sha256sum of one file use the option '-sha256', and substitute '\<filename\>' with the name of the file wanted.
+
+```bash
+./main -sha256 <filename>
+```
+
+For more options use:
+
+```bash
+./main --help
 ```
