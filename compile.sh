@@ -11,4 +11,4 @@ echo "Compiling..."
 $COMPILER -std=$CPP_VERSION $FILE -o $OUTPUT_FILE $@
 
 echo "Compilation finished!"
-echo "If no errors has occured, run the program using: ./main"
+echo "If no errors have occured, run the program using: ./main"
