@@ -1,3 +1,5 @@
+// ------ Include Libs ----------------------------------------------
+
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -5,13 +7,19 @@
 #include <memory>
 #include <queue>
 
-// TODO: turn this into a module inside the include path!!
 #include "external/hashlibpp.hpp"
 #include "external/argparse.hpp"
+#include "external/progressbar.hpp"
+
+// ---- Commonly used namespaces ------------------------------------
 
 namespace fs = std::filesystem;
+
 using namespace hashlibpp;
 using std::string;
+
+
+// ------------------------------------------------------------------
 
 namespace shazam {
 
@@ -166,7 +174,11 @@ namespace shazam {
             }
     };
 
+    class ProgressObserver {
+        // TODO: implement this class
+    }
+    
     class Checker {
-        
+        // TODO: implement this class
     };
 }
