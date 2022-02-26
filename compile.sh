@@ -10,16 +10,22 @@ OUTPUT_FILE=main
 PRE_OUT_FILE=.$OUTPUT_FILE.pre.out
 
 # Now trying to compile the program:
-echo -n "Compiling..."
+echo -n "Compiling... "
 
+# Running #########################################>>
 $COMPILER -std=$CPP_VERSION $FILE -o $PRE_OUT_FILE $@
+###################################################>>
+
 
 if [ -f $PRE_OUT_FILE ]
 then
+    # Running #################>>
     mv $PRE_OUT_FILE $OUTPUT_FILE
-    echo " Done!"
-    echo "Run it using: ./main"
+    ###########################>>
+    
+    echo "Done!"
+    echo "Run it using: ./$OUTPUT_FILE"
 else
     echo ""
-    echo "Error!!"
+    echo "Error Running -> $COMPILER -std=$CPP_VERSION $FILE -o $PRE_OUT_FILE $@"
 fi
