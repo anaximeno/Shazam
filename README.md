@@ -37,3 +37,17 @@ For more options use:
 ```bash
 ./main --help
 ```
+
+### Tests
+
+The tests are inside the tests folder which inside is the script run_test.sh responsible for running the tests
+and the main test file named tests.cpp which contains all tests inside. So, basically, to run the unit and integration test on that file,
+it would be necessary to execute the following commands:
+
+```bash
+cd ./tests
+sh run_test.sh
+```
+
+Then the results should be printed on the terminal.
+
