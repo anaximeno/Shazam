@@ -19,8 +19,9 @@ namespace shazam {
 // ---- Commonly used namespaces ------------------------------------
 namespace fs = std::filesystem;
 
-using namespace hashlibpp;
 using std::string;
+using std::cout, std::endl, std::string;
+using argparse::ArgumentParser;
 
 
 enum EFileValidStatus {
@@ -151,7 +152,7 @@ class Hash {
 };
 
 
-class HashFactory: public wrapperfactory {
+class HashFactory: public hashlibpp::wrapperfactory {
     const std::array<string, 6> validHashTypes = {
         "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
     };
@@ -182,8 +183,8 @@ class Checker {
 
 class App {
     const string name;
-    shazam::HashFactory hashFactory;
-    shazam::FileFactory fileFactory;
+    HashFactory hashFactory;
+    FileFactory fileFactory;
     std::list<std::shared_ptr<File>> invalidFilesQueue;
     std::unique_ptr<ArgumentParser> args;
 
@@ -216,21 +217,21 @@ class App {
                         .help("Use this to calculate the sha512 hash sum");
     }
 
-    string evaluateFileErr(shazam::EFileValidStatus errStatus) {
+    string evaluateFileErr(EFileValidStatus errStatus) {
         string err;
 
         switch (errStatus)
         {
-        case shazam::EFileValidStatus::NON_EXISTENT:
+        case NON_EXISTENT:
             err = "File Not Found! ";
             break;
-        case shazam::EFileValidStatus::IS_DIRECTORY:
+        case IS_DIRECTORY:
             err = "Directory given as file! ";
             break;
-        case shazam::EFileValidStatus::NOT_PERMISSIVE:
+        case NOT_PERMISSIVE:
             err = "Permission was refused to read the file! ";
             break;
-        case shazam::EFileValidStatus::NOT_READABLE:
+        case NOT_READABLE:
             err = "Can't read the file!";
             break;
         default:
