@@ -21,6 +21,7 @@ namespace fs = std::filesystem;
 
 using std::string;
 using std::cout, std::endl, std::string;
+using hashlibpp::hashwrapper, hashlibpp::wrapperfactory;
 using argparse::ArgumentParser;
 
 
@@ -114,17 +115,17 @@ class FileFactory {
 class Hash {
     string calculatedHash;
     const std::unique_ptr<hashwrapper> hasher;
-    const std::shared_ptr<File> file;
-    const string _type;
     bool hashsumWasCalculated = false;
+    const string _type;
 
-    protected:
-        void calculate(void) {
-            this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
-            this->hashsumWasCalculated = true;
-        }
+    void _calculate(void) {
+        this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
+        this->hashsumWasCalculated = true;
+    }
 
     public:
+        const std::shared_ptr<File> file;
+
         Hash(string hashname,
             std::unique_ptr<hashwrapper> wrapper,
             std::shared_ptr<File> file_ptr
@@ -135,10 +136,16 @@ class Hash {
             assert(file->isValid());
         }
 
+        void calculateSum() {
+            if (!this->hashsumWasCalculated) {
+                this->_calculate();
+            }
+        }
+
         string getStringHashSum() {
             if (this->hashsumWasCalculated) {
                 return this->calculatedHash;
-            } this->calculate();
+            } this->calculateSum();
             return this->getStringHashSum();
         }
 
@@ -152,17 +159,17 @@ class Hash {
 };
 
 
-class HashFactory: public hashlibpp::wrapperfactory {
+class HashFactory: public wrapperfactory {
     const std::array<string, 6> validHashTypes = {
         "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
     };
 
     public:
-        std::unique_ptr<Hash>
+        std::shared_ptr<Hash>
         createFileHash(string hashtype, std::shared_ptr<File> file) {
             assert(file->isValid());
             auto wrapper = std::unique_ptr<hashwrapper>(this->create(hashtype));
-            return std::make_unique<Hash>(hashtype, std::move(wrapper), file);
+            return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
         }
 };
 
@@ -171,14 +178,14 @@ class ProgressObserver {
 };
 
 class Checker {
-    const string hashType;
     std::queue<std::shared_ptr<Hash>> hashedFilesQueue;
 
     public:
-        Checker(string hashType): hashType{hashType} {
-
+        Checker() {
+            // 
         }
     
+
 };
 
 class App {
@@ -193,8 +200,8 @@ class App {
         assert(this->args != nullptr);
 
         this->args->add_argument("files")
-                            .remaining()
-                            .help("the name of the file");
+                        .remaining()
+                        .help("the name of the file");
         this->args->add_argument("-md5", "--md5sum")
                         .default_value(false)
                         .implicit_value(true)
@@ -273,10 +280,22 @@ class App {
     void getFiles() {
         try {
             auto files = this->args->get<std::vector<string>>("files");
-            for (auto& file : files)
-                std::cout << file << std::endl;
+            cout << this->getHashType() << "SUM\n" << endl;
+            for (auto& f : files) {
+                auto file = this->fileFactory.create(f);
+                if (file->isValid()) {
+                    auto hash = this->hashFactory.createFileHash(this->getHashType(), file);
+                    cout << hash->getStringHashSum();
+                    cout << " " << hash->file->path() << "\n";
+                } else {
+                    std::cerr << this->evaluateFileErr(file->status());
+                    std::cerr << " -> " << file->path();
+                    std::cout << file << "\n";
+                }
+            }
         } catch (const std::logic_error& err) {
-            std::cout << "No files provided" << std::endl;
+            cout << "No files were provided" << std::endl;
+            cout << this->args->help().str() << endl;
         }
     }
 
@@ -291,19 +310,6 @@ class App {
         int run(int argc, char** argv) {
             this->parse(argc, argv);
             this->getFiles();
-            std::exit(0);
-            
-            auto file = this->fileFactory.create(this->args->get<string>("filename"));
-
-            cout << "Locating: " << file->path() << endl;
-
-            if (file->isValid()) {
-                auto hash = this->hashFactory.createFileHash(this->getHashType(), file);
-                cout << hash->type() << "SUM: " << hash->getStringHashSum() << endl;
-            } else {
-                std::cerr << this->evaluateFileErr(file->status()) << endl;
-            }
-
             return 0;
         }
 };
