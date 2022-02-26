@@ -118,6 +118,56 @@ void test_sha512sum() {
 
 // -------------- END Hash Sums --------------------------------------------------------
 
+// -------------- File Size ------------------------------------------------------------
+
+void test_file_size() {
+    // previously calculated
+    const int SIZE = 17;
+
+    shazam::FileFactory ffactory;
+    auto file = ffactory.create(FILE_FOR_HASHING_NAME);
+    auto not_existent_file = ffactory.create("i_am_a_inexistent_file.txt");
+
+    ASSERT("Testing file.size", SIZE == file->size());
+    ASSERT_EQUALS(not_existent_file->size(), 0);
+}
+
+// -------------- END File Size --------------------------------------------------------
+
+// -------------- Hexa to Int converter ------------------------------------------------
+
+void test_hexa_to_int_converter() {
+    const string HEXA = "beaf"; // :-´)
+    const int RESULT = 48815;
+    ASSERT("Testing Hexa to Int Converter", shazam::hexaToInt(HEXA) == RESULT);
+}
+
+// -------------- END Hexa to Int converter ---------------------------------------------
+
+
+// -------------- Upper and Lower case converters ---------------------------------------
+
+void test_upper_case_converter() {
+    string lower_case_sentence = "oke dokie";
+    string upper_case_sentence = "OKE DOKIE";
+
+    ASSERT("Uppercase converter",
+        shazam::toUpperCase(lower_case_sentence) == upper_case_sentence
+    );
+}
+
+void test_lower_case_converter() {
+    string lower_case_sentence = "oke dokie";
+    string upper_case_sentence = "OKE DOKIE";
+
+    ASSERT("Lowercase converter",
+        shazam::toLowerCase(upper_case_sentence) == lower_case_sentence
+    );
+}
+
+// -------------- END Upper and Lower case converters ------------------------------------
+
+
 
 int main(int argc, char** argv) {
     // ---- File Factory
@@ -131,6 +181,16 @@ int main(int argc, char** argv) {
     RUN(test_sha256sum);
     RUN(test_sha384sum);
     RUN(test_sha512sum);
+
+    // ---- File Size
+    RUN(test_file_size);
+
+    // ---- Hexa to Int converter
+    RUN(test_hexa_to_int_converter);
+
+    // ---- Lower and Upper case converter
+    RUN(test_upper_case_converter);
+    RUN(test_lower_case_converter);
 
     return TEST_REPORT();
 }

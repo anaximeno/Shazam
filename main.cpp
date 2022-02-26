@@ -3,5 +3,5 @@
 
 int main(int argc, char * argv[]) {
     shazam::App app(argv[0]);
-	return app.run(argc, argv);
+    return app.run(argc, argv);
 }
