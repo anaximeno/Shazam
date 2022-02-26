@@ -37,10 +37,34 @@ enum EFileValidStatus {
 class File {
     const EFileValidStatus _status;
     const string _path;
+    string reasonForStatus;
     public:
         File(string path, EFileValidStatus status):
             _status{status}, _path{path} {
-            //
+        switch (status)
+            {
+            case NON_EXISTENT:
+                this->reasonForStatus = "File Not Found! ";
+                break;
+            case IS_DIRECTORY:
+                this->reasonForStatus = "Directory given as file! ";
+                break;
+            case NOT_PERMISSIVE:
+                this->reasonForStatus = "Permission was refused to read the file! ";
+                break;
+            case NOT_READABLE:
+                this->reasonForStatus = "Can't read the file!";
+                break;
+            case IS_VALID:
+                this->reasonForStatus = "File is valid.";
+            default:
+                this->reasonForStatus = "Unknown file status!";
+                break;
+            }
+        }
+
+        string explain() {
+            return this->reasonForStatus;
         }
 
         string path() {
@@ -55,6 +79,7 @@ class File {
             return this->status() == EFileValidStatus::IS_VALID;
         }
 };
+
 
 class FileFactory {
     bool fileExists(fs::file_status filestatus) {
@@ -114,9 +139,10 @@ class FileFactory {
 
 class Hash {
     string calculatedHash;
-    const std::unique_ptr<hashwrapper> hasher;
     bool hashsumWasCalculated = false;
     const string _type;
+    const std::unique_ptr<hashwrapper> hasher;
+    const std::shared_ptr<File> file;
 
     void _calculate(void) {
         this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
@@ -124,14 +150,13 @@ class Hash {
     }
 
     public:
-        const std::shared_ptr<File> file;
 
         Hash(string hashname,
             std::unique_ptr<hashwrapper> wrapper,
             std::shared_ptr<File> file_ptr
-        ) : hasher{std::move(wrapper)},
-            file{file_ptr},
-            _type{hashname}
+        ) : _type{hashname},
+            hasher{std::move(wrapper)},
+            file{file_ptr}
         {
             assert(file->isValid());
         }
@@ -142,19 +167,23 @@ class Hash {
             }
         }
 
-        string getStringHashSum() {
-            if (this->hashsumWasCalculated) {
-                return this->calculatedHash;
-            } this->calculateSum();
-            return this->getStringHashSum();
-        }
-
         string type() {
             return this->_type;
         }
 
+        string getStringHashSum() {
+            if (this->hashsumWasCalculated) {
+                return this->calculatedHash;
+            } this->_calculate();
+            return this->getStringHashSum();
+        }
+
         int getIntHashSum() {
             return std::stoi(this->getStringHashSum(), 0, 16);
+        }
+
+        string getFilePath() {
+            return this->file->path();
         }
 };
 
@@ -178,21 +207,40 @@ class ProgressObserver {
 };
 
 class Checker {
-    std::queue<std::shared_ptr<Hash>> hashedFilesQueue;
+    const string hashtype;
+    HashFactory hashFactory;
+    std::list<std::shared_ptr<Hash>> validFilesHashes;
+    std::list<std::shared_ptr<File>> invalidFilesList;
+
+    protected:
+        void calculate() {
+            
+        }
 
     public:
-        Checker() {
+        Checker(string hashtype): hashtype{hashtype} {
             // 
         }
     
+    void add(std::shared_ptr<File> file) {
+        if (file->isValid()) {
+            this->validFilesHashes.push_front(
+                this->hashFactory.createFileHash(this->hashtype, file)
+            );
+        } else {
+            this->invalidFilesList.push_front(file);
+        }
+    }
+
+    void displayResults() {
+
+    }
 
 };
 
 class App {
     const string name;
-    HashFactory hashFactory;
     FileFactory fileFactory;
-    std::list<std::shared_ptr<File>> invalidFilesQueue;
     std::unique_ptr<ArgumentParser> args;
 
     void setupArgparser() {
@@ -224,33 +272,7 @@ class App {
                         .help("Use this to calculate the sha512 hash sum");
     }
 
-    string evaluateFileErr(EFileValidStatus errStatus) {
-        string err;
-
-        switch (errStatus)
-        {
-        case NON_EXISTENT:
-            err = "File Not Found! ";
-            break;
-        case IS_DIRECTORY:
-            err = "Directory given as file! ";
-            break;
-        case NOT_PERMISSIVE:
-            err = "Permission was refused to read the file! ";
-            break;
-        case NOT_READABLE:
-            err = "Can't read the file!";
-            break;
-        default:
-            err = "Unknown file status!";
-            break;
-        }
-
-        return err;
-    }
-
     string getHashType() {
-        std::array<string, 6> hashes;
         if (this->args->is_used("-md5")) {
             return "MD5";
         } else if (this->args->is_used("-sha1")) {
@@ -277,26 +299,21 @@ class App {
         }
     }
 
-    void getFiles() {
+    std::unique_ptr<Checker> analizeInputFiles(string hashType) {
+        std::unique_ptr<Checker> check = std::make_unique<Checker>(hashType); 
+
         try {
             auto files = this->args->get<std::vector<string>>("files");
-            cout << this->getHashType() << "SUM\n" << endl;
-            for (auto& f : files) {
-                auto file = this->fileFactory.create(f);
-                if (file->isValid()) {
-                    auto hash = this->hashFactory.createFileHash(this->getHashType(), file);
-                    cout << hash->getStringHashSum();
-                    cout << " " << hash->file->path() << "\n";
-                } else {
-                    std::cerr << this->evaluateFileErr(file->status());
-                    std::cerr << " -> " << file->path();
-                    std::cout << file << "\n";
-                }
+            for (auto& file : files) {
+                check->add(this->fileFactory.create(file));   
             }
         } catch (const std::logic_error& err) {
             cout << "No files were provided" << std::endl;
             cout << this->args->help().str() << endl;
+            std::exit(0);
         }
+
+        return check;
     }
 
     public:
@@ -309,7 +326,8 @@ class App {
 
         int run(int argc, char** argv) {
             this->parse(argc, argv);
-            this->getFiles();
+            const string hashType = this->getHashType();
+            auto check = this->analizeInputFiles(hashType);
             return 0;
         }
 };
