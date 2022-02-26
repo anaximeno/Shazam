@@ -36,6 +36,22 @@ enum EFileValidStatus {
 };
 
 
+// ---- Some useful functions-----------------------------------------
+
+int hexaToInt(string hexadecimalString) {
+    return std::stoi(hexadecimalString, 0, 16);
+}
+
+string toUpperCase(string& str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    return str;
+}
+
+string toLowerCase(string& str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+}
+
 // ---- Classes -----------------------------------------------------
 class File {
     const EFileValidStatus _status;
@@ -146,9 +162,6 @@ class FileFactory {
         }
 };
 
-int hexaToInt(string hexadecimalString) {
-    return std::stoi(hexadecimalString, 0, 16);
-}
 
 class Hash {
     string calculatedHash;
@@ -229,7 +242,7 @@ class Checker {
         Checker(string hashtype): hashtype{hashtype} {
             // 
         }
-    
+
     void add(std::shared_ptr<File> file) {
         if (file->isValid()) {
             this->validFilesHashes.push_front(
@@ -255,10 +268,10 @@ class Checker {
                 cout << hash->getStringHashSum() << " ";
                 cout << hash->getFilePath() << "\n";
             }
-            cout << endl;
         }
 
         if (!this->invalidFilesList.empty()) {
+            cout << endl;
             cout << "Invalid Files:\n";
             for (auto& file : this->invalidFilesList) {
                 cout << " " << file->path() << " -> " << file->explain();
@@ -306,6 +319,7 @@ class App {
     }
 
     string getHashType() {
+
         if (this->args->is_used("-md5")) {
             return "MD5";
         } else if (this->args->is_used("-sha1")) {
