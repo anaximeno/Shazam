@@ -142,6 +142,30 @@ void test_hexa_to_int_converter() {
     ASSERT("Testing Hexa to Int Converter", shazam::hexaToInt(HEXA) == RESULT);
 }
 
+// -------------- END Hexa to Int converter ---------------------------------------------
+
+
+// -------------- Upper and Lower case converters ---------------------------------------
+
+void test_upper_case_converter() {
+    string lower_case_sentence = "oke dokie";
+    string upper_case_sentence = "OKE DOKIE";
+
+    ASSERT("Uppercase converter",
+        shazam::toUpperCase(lower_case_sentence) == upper_case_sentence
+    );
+}
+
+void test_lower_case_converter() {
+    string lower_case_sentence = "oke dokie";
+    string upper_case_sentence = "OKE DOKIE";
+
+    ASSERT("Lowercase converter",
+        shazam::toLowerCase(upper_case_sentence) == lower_case_sentence
+    );
+}
+
+// -------------- END Upper and Lower case converters ------------------------------------
 
 
 
@@ -163,6 +187,10 @@ int main(int argc, char** argv) {
 
     // ---- Hexa to Int converter
     RUN(test_hexa_to_int_converter);
+
+    // ---- Lower and Upper case converter
+    RUN(test_upper_case_converter);
+    RUN(test_lower_case_converter);
 
     return TEST_REPORT();
 }
