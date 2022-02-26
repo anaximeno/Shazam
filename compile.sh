@@ -6,9 +6,10 @@ FILE=main.cpp
 OUTPUT_FILE=main
 
 
-echo "Compiling..."
+echo -n "Compiling..."
 
 $COMPILER -std=$CPP_VERSION $FILE -o $OUTPUT_FILE $@
 
-echo "Compilation finished!"
+echo " Done!"
+
 echo "If no errors have occured, run the program using: ./main"
