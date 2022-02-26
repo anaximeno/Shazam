@@ -42,9 +42,8 @@ class File {
     const string _path;
     string reasonForStatus;
     public:
-        File(string path, EFileValidStatus status):
-            _status{status}, _path{path} {
-        switch (status)
+        File(string path, EFileValidStatus status): _status{status}, _path{path} {
+            switch (status)
             {
             case NON_EXISTENT:
                 this->reasonForStatus = "File Not Found! ";
@@ -66,10 +65,6 @@ class File {
             }
         }
 
-        string explain() {
-            return this->reasonForStatus;
-        }
-
         string path() {
             return this->_path;
         }
@@ -80,6 +75,18 @@ class File {
 
         bool isValid() {
             return this->status() == EFileValidStatus::IS_VALID;
+        }
+
+        int size() {
+            if (this->isValid()) {
+                return fs::file_size(this->path());
+            } else {
+                return 0;
+            }
+        }
+
+        string explain() {
+            return this->reasonForStatus;
         }
 };
 
