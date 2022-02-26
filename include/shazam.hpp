@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <cassert>
 #include <memory>
-#include <queue>
 
 #include "external/hashlibpp.hpp"
 #include "external/argparse.hpp"
@@ -136,6 +135,9 @@ class FileFactory {
         }
 };
 
+int hexaToInt(string hexadecimalString) {
+    return std::stoi(hexadecimalString, 0, 16);
+}
 
 class Hash {
     string calculatedHash;
@@ -179,7 +181,7 @@ class Hash {
         }
 
         int getIntHashSum() {
-            return std::stoi(this->getStringHashSum(), 0, 16);
+            return hexaToInt(this->getStringHashSum());
         }
 
         string getFilePath() {
@@ -246,9 +248,10 @@ class Checker {
         }
 
         if (!this->invalidFilesList.empty()) {
-            cout << "Not found: ";
+            cout << "Invalid Files:\n";
             for (auto& file : this->invalidFilesList) {
-                cout << file->path() << ", ";
+                cout << " " << file->path() << " -> " << file->explain();
+                cout << "\n";
             }
             cout << endl;
         }
