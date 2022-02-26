@@ -256,6 +256,7 @@ class Checker {
 
 };
 
+
 class App {
     const string name;
     FileFactory fileFactory;
