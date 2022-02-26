@@ -2,5 +2,6 @@
 
 
 int main(int argc, char * argv[]) {
-	return std::make_unique<shazam::App>(argv[0])->run(argc, argv);
+    shazam::App app(argv[0]);
+	return app.run(argc, argv);
 }
