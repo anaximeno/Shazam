@@ -212,11 +212,6 @@ class Checker {
     std::list<std::shared_ptr<Hash>> validFilesHashes;
     std::list<std::shared_ptr<File>> invalidFilesList;
 
-    protected:
-        void calculate() {
-            
-        }
-
     public:
         Checker(string hashtype): hashtype{hashtype} {
             // 
@@ -232,8 +227,31 @@ class Checker {
         }
     }
 
-    void displayResults() {
+    void calculateHashSums() {
+        auto lambda = [](std::shared_ptr<Hash>& hash) {
+            hash->calculateSum();
+        };
 
+        std::for_each(this->validFilesHashes.begin(), this->validFilesHashes.end(), lambda);
+    }
+
+    void displayResults() {
+        cout << this->hashtype << "SUM:" << endl;
+        if (!this->validFilesHashes.empty()) {
+            for (auto& hash : this->validFilesHashes) {
+                cout << hash->getStringHashSum() << " ";
+                cout << hash->getFilePath() << "\n";
+            }
+            cout << endl;
+        }
+
+        if (!this->invalidFilesList.empty()) {
+            cout << "Not found: ";
+            for (auto& file : this->invalidFilesList) {
+                cout << file->path() << ", ";
+            }
+            cout << endl;
+        }
     }
 
 };
@@ -328,9 +346,9 @@ class App {
             this->parse(argc, argv);
             const string hashType = this->getHashType();
             auto check = this->analizeInputFiles(hashType);
+            check->calculateHashSums();
+            check->displayResults();
             return 0;
         }
 };
 }
-
-
