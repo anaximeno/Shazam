@@ -302,8 +302,8 @@ class App {
             return "SHA384";
         } else if (this->args->is_used("-sha512")) {
             return "SHA512";
-        } else { // Default, TODO: Maybe add to a config file,
-                // and give the user an option to change.
+        } else {
+            // TODO: alert user to give a specific type
             return "SHA256";
         }
     }
@@ -336,8 +336,7 @@ class App {
     }
 
     public:
-        App(string name) :
-            name{name},
+        App(string name) : name{name},
             args{std::make_unique<ArgumentParser>(name)}
         {
             this->setupArgparser();
