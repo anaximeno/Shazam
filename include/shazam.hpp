@@ -35,6 +35,9 @@ enum EFileValidStatus {
     NOT_READABLE
 };
 
+std::array<const string, 5> VALID_HASH_TYPES_ARRAY = {
+    "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
+};
 
 // ---- Some useful functions-----------------------------------------
 
@@ -42,12 +45,12 @@ int hexaToInt(string hexadecimalString) {
     return std::stoi(hexadecimalString, 0, 16);
 }
 
-string toUpperCase(string& str) {
+string toUpperCase(string str) {
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
     return str;
 }
 
-string toLowerCase(string& str) {
+string toLowerCase(string str) {
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     return str;
 }
@@ -177,13 +180,8 @@ class Hash {
 
     public:
 
-        Hash(string hashname,
-            std::unique_ptr<hashwrapper> wrapper,
-            std::shared_ptr<File> file_ptr
-        ) : _type{hashname},
-            hasher{std::move(wrapper)},
-            file{file_ptr}
-        {
+        Hash(string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr) : 
+            _type{hashname}, hasher{std::move(wrapper)}, file{file_ptr} {
             assert(file->isValid());
         }
 
@@ -215,10 +213,6 @@ class Hash {
 
 
 class HashFactory: public wrapperfactory {
-    const std::array<string, 6> validHashTypes = {
-        "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
-    };
-
     public:
         std::shared_ptr<Hash>
         createFileHash(string hashtype, std::shared_ptr<File> file) {
@@ -286,6 +280,7 @@ class Checker {
 
 class App {
     const string name;
+    string hashType;
     FileFactory fileFactory;
     std::unique_ptr<ArgumentParser> args;
 
@@ -293,46 +288,36 @@ class App {
         // Must create the args first!
         assert(this->args != nullptr);
 
-        this->args->add_argument("files")
-                        .remaining()
+        this->args->add_argument("files").remaining()
                         .help("the name of the file");
-        this->args->add_argument("-md5", "--md5sum")
-                        .default_value(false)
-                        .implicit_value(true)
-                        .help("Use this to calculate the md5 hash sum");
-        this->args->add_argument("-sha1", "--sha1sum")
-                        .default_value(false)
-                        .implicit_value(true)
-                        .help("Use this to calculate the sha1 hash sum");
-        this->args->add_argument("-sha256", "--sha256sum")
-                        .default_value(false)
-                        .implicit_value(true)
-                        .help("Use this to calculate the sha256 hash sum");
-        this->args->add_argument("-sha384", "--sha384sum")
-                        .default_value(false)
-                        .implicit_value(true)
-                        .help("Use this to calculate the md5 hash sum");
-        this->args->add_argument("-sha512", "--sha512sum")
-                        .default_value(false)
-                        .implicit_value(true)
-                        .help("Use this to calculate the sha512 hash sum");
+
+        for (auto& htype : VALID_HASH_TYPES_ARRAY) {
+            const string lower = toLowerCase(htype);
+            this->args->add_argument("-" + lower, "--" + lower + "sum")
+                            .help("Use this to calculate the " + lower + " hash sum")
+                            .default_value(false).implicit_value(true);
+        }
     }
 
-    string getHashType() {
+    void getHashType() {
+        int counter = 0;
+        for (auto& htype : VALID_HASH_TYPES_ARRAY) {
+            if (this->args->is_used("-" + toLowerCase(htype))) {
+                this->hashType = htype;
+                counter++;
+            }
+        }
 
-        if (this->args->is_used("-md5")) {
-            return "MD5";
-        } else if (this->args->is_used("-sha1")) {
-            return "SHA1";
-        } else if (this->args->is_used("-sha256")) {
-            return "SHA256";
-        } else if (this->args->is_used("-sha384")) {
-            return "SHA384";
-        } else if (this->args->is_used("-sha512")) {
-            return "SHA512";
+        if (counter == 0) {
+            this->printErrMessage(
+                "Must specify the type of hash sum!"
+            );
+        } else if (counter > 1) {
+            this->printErrMessage(
+                "You can chose only one hash type each time!"
+            );
         } else {
-            // TODO: alert user to give a specific type
-            return "SHA256";
+            // DO NOTHING!
         }
     }
 
@@ -355,25 +340,27 @@ class App {
                 check->add(this->fileFactory.create(file));   
             }
         } catch (const std::logic_error& err) {
-            cout << "No files were provided" << std::endl;
-            cout << this->args->help().str() << endl;
-            std::exit(0);
+            this->printErrMessage("No files were provided");
         }
 
         return check;
     }
 
     public:
-        App(string name) : name{name},
-            args{std::make_unique<ArgumentParser>(name)}
-        {
+        App(string name): name{name}, args{std::make_unique<ArgumentParser>(name)} {
             this->setupArgparser();
+        }
+
+        void printErrMessage(const string& message) {
+            std::cerr << "Err: " << message << endl;
+            cout << endl << this->args->help().str() << endl;
+            std::exit(1);
         }
 
         int run(int argc, char** argv) {
             this->parse(argc, argv);
-            const string hashType = this->getHashType();
-            auto check = this->analizeInputFiles(hashType);
+            this->getHashType();
+            auto check = this->analizeInputFiles(this->hashType);
             check->calculateHashSums();
             check->displayResults();
             return 0;
