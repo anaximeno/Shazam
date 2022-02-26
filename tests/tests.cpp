@@ -50,7 +50,6 @@ void test_file_factory_on_non_permissive_files(void) {
 // -------------- END Testing File Factory ---------------------------------------------
 
 
-// -------------- Testing File Factory -------------------------------------------------
 
 // -------------- Testing Hash Sums ----------------------------------------------------
 
