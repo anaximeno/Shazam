@@ -15,6 +15,11 @@ Or using the compile.sh script:
 sh compile.sh
 ```
 
+You can also give arguments to the compile.sh script, like, for example:
+```bash
+sh compile.sh -Wall -static
+```
+
 Finally execute it using:
 
 ```bash
@@ -23,10 +28,10 @@ Finally execute it using:
 
 ### Usage
 
-To calculate the sha256sum of one file use the option '-sha256', and substitute '\<filename\>' with the name of the file wanted.
+To calculate the sha256sum of one file use the option '-sha256', and substitute '\<files\>' with the name of the files wanted.
 
 ```bash
-./main -sha256 <filename>
+./main -sha256 <files>
 ```
 
 For more options use:
