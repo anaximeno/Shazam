@@ -13,16 +13,19 @@
 
 // ------------------------------------------------------------------
 
-namespace shazam {
+namespace shazam { // -- MAIN NAMESPACE: shazam --
 
 // ---- Commonly used namespaces ------------------------------------
+
 namespace fs = std::filesystem;
 
 using std::string;
 using std::cout, std::endl, std::string;
-using hashlibpp::hashwrapper, hashlibpp::wrapperfactory;
+using hashlibpp::hashwrapper,
+      hashlibpp::wrapperfactory;
 using argparse::ArgumentParser;
 
+// ---- Enums -------------------------------------------------------
 
 enum EFileValidStatus {
     IS_VALID,
@@ -33,6 +36,7 @@ enum EFileValidStatus {
 };
 
 
+// ---- Classes -----------------------------------------------------
 class File {
     const EFileValidStatus _status;
     const string _path;
@@ -49,7 +53,7 @@ class File {
                 this->reasonForStatus = "Directory given as file! ";
                 break;
             case NOT_PERMISSIVE:
-                this->reasonForStatus = "Permission was refused to read the file! ";
+                this->reasonForStatus = "Permission refused! ";
                 break;
             case NOT_READABLE:
                 this->reasonForStatus = "Can't read the file!";
