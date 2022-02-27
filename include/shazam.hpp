@@ -8,9 +8,10 @@
 
 #include "external/hashlibpp.hpp"
 #include "external/argparse.hpp"
-#include "external/progressbar.hpp"
+#include "external/ProgressBar.hpp"
 
-
+#ifndef __SHAZAM_HPP
+#define __SHAZAM_HPP
 // ------------------------------------------------------------------
 
 namespace shazam { // -- MAIN NAMESPACE: shazam --
@@ -35,7 +36,7 @@ enum EFileValidStatus {
     NOT_READABLE
 };
 
-std::array<const string, 5> VALID_HASH_TYPES_ARRAY = {
+const std::array<const string, 5> VALID_HASH_TYPES_ARRAY = {
     "MD5", "SHA1", "SHA256", "SHA384", "SHA512"
 };
 
@@ -166,12 +167,56 @@ class FileFactory {
 };
 
 
+class ProgressObserver {
+    const int progressWidth;
+    int observables = 0;
+    std::unique_ptr<progresscpp::ProgressBar> pbar;
+    
+    public:
+        void update() {
+            if (this->pbar != nullptr) {
+                ++(*(this->pbar));
+                this->pbar->display();
+            }
+        }
+
+        void done() {
+            if (this->pbar != nullptr) {
+                this->pbar->done();
+                cout << endl;
+            }
+        }
+
+        void increaseObervableCounter() {
+            this->observables++;
+        }
+
+        int getObservablesNumber() {
+            return this->observables;
+        }
+
+        void init() {
+            this->pbar = std::make_unique<progresscpp::ProgressBar>(
+                this->observables, this->progressWidth
+            );
+        }
+
+        ProgressObserver(int progressWidth):
+            progressWidth{progressWidth} {
+            //
+        }
+};
+
+
+
 class Hash {
     string calculatedHash;
     bool hashsumWasCalculated = false;
     const string _type;
     const std::unique_ptr<hashwrapper> hasher;
     const std::shared_ptr<File> file;
+    
+    std::shared_ptr<ProgressObserver> observer;
 
     void _calculate(void) {
         this->calculatedHash = this->hasher->getHashFromFile(this->file->path());
@@ -179,10 +224,18 @@ class Hash {
     }
 
     public:
-
         Hash(string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr) : 
             _type{hashname}, hasher{std::move(wrapper)}, file{file_ptr} {
             assert(file->isValid());
+        }
+
+        void registerObserver(std::shared_ptr<ProgressObserver> pObs) {
+            this->observer = pObs;
+            this->observer->increaseObervableCounter();
+        }
+
+        void notify() {
+            this->observer->update();
         }
 
         void calculateSum() {
@@ -222,40 +275,43 @@ class HashFactory: public wrapperfactory {
         }
 };
 
-class ProgressObserver {
-    // TODO: implement this class
-};
 
 class Checker {
-    const string hashtype;
     HashFactory hashFactory;
+    const string hashtype;
+    const std::shared_ptr<ProgressObserver> progress;
     std::list<std::shared_ptr<Hash>> validFilesHashes;
     std::list<std::shared_ptr<File>> invalidFilesList;
 
     public:
-        Checker(string hashtype): hashtype{hashtype} {
-            // 
+        Checker(string hashtype):
+            hashtype{hashtype},
+            progress{std::make_shared<ProgressObserver>(40)} {
         }
 
     void add(std::shared_ptr<File> file) {
         if (file->isValid()) {
-            this->validFilesHashes.push_front(
-                this->hashFactory.createFileHash(this->hashtype, file)
-            );
+            auto hash = this->hashFactory.createFileHash(this->hashtype, file);
+            hash->registerObserver(this->progress);
+            this->validFilesHashes.push_front(hash);
         } else {
             this->invalidFilesList.push_front(file);
         }
     }
 
     void calculateHashSums() {
+        this->progress->init();
+
         auto lambda = [](std::shared_ptr<Hash>& hash) {
             hash->calculateSum();
+            hash->notify();
         };
 
         std::for_each(this->validFilesHashes.begin(), this->validFilesHashes.end(), lambda);
     }
 
     void displayResults() {
+        this->progress->done();
         cout << this->hashtype << "SUM:" << endl;
         if (!this->validFilesHashes.empty()) {
             for (auto& hash : this->validFilesHashes) {
@@ -337,7 +393,7 @@ class App {
         try {
             auto files = this->args->get<std::vector<string>>("files");
             for (auto& file : files) {
-                check->add(this->fileFactory.create(file));   
+                check->add(this->fileFactory.create(file));
             }
         } catch (const std::logic_error& err) {
             this->printErrMessage("No files were provided");
@@ -367,3 +423,5 @@ class App {
         }
 };
 }
+
+#endif
