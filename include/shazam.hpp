@@ -171,12 +171,13 @@ class FileFactory {
 class ProgressObserver {
     const int progressWidth;
 
-    int observables = 0;
+    int activeObservables = 0;
 
     std::unique_ptr<progresscpp::ProgressBar> pbar;
 
     public:
         void update() {
+            this->activeObservables--;
             if (this->pbar != nullptr) {
                 ++(*(this->pbar));
                 this->pbar->display();
@@ -184,7 +185,6 @@ class ProgressObserver {
         }
 
         void done() {
-            this->observables = 0;
             if (this->pbar != nullptr) {
                 this->pbar->done();
                 cout << endl;
@@ -192,11 +192,11 @@ class ProgressObserver {
         }
 
         void increaseObervableCounter() {
-            this->observables++;
+            this->activeObservables++;
         }
 
         int getObservablesNumber() {
-            return this->observables;
+            return this->activeObservables;
         }
 
         void init() {
@@ -291,6 +291,7 @@ class HashFactory: public wrapperfactory {
 class Checker {
     HashFactory hashFactory;
 
+    const bool showProgressBar;
     const std::shared_ptr<ProgressObserver> progress;
 
     std::list<std::shared_ptr<Hash>> validFilesHashes;
@@ -321,7 +322,9 @@ class Checker {
     }
 
     public:
-        Checker(): progress{std::make_shared<ProgressObserver>(40)} {
+        Checker(bool showProgressBar = true):
+            showProgressBar{showProgressBar},
+            progress{std::make_shared<ProgressObserver>(40)} {
         }
 
         void add(std::shared_ptr<File> file, string hashtype) {
@@ -336,7 +339,7 @@ class Checker {
         }
 
         void calculateHashSums() {
-            this->progress->init();
+            if (this->showProgressBar) { this->progress->init(); }
             std::for_each(
                 this->validFilesHashes.begin(),
                 this->validFilesHashes.end(),
@@ -348,9 +351,17 @@ class Checker {
         }
 
         void displayResults(const string hashtype = "") {
-            this->progress->done();
+            if (this->showProgressBar) { this->progress->done(); }
             this->displayValidHashes(hashtype);
             this->displayInvalidFiles();
+        }
+
+        auto getValidHashesList() {
+            return this->validFilesHashes;
+        }
+
+        auto getInvalidFilesList() {
+            return this->invalidFilesList;
         }
 };
 
