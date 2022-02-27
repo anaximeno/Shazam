@@ -44,6 +44,14 @@ For more options use:
 ./main --help
 ```
 
+### Name
+The program will have the same name of the binary file being executed so if another name is wanted, just rename the binary file 'main' to whatever is wanted and the problem is solved. Example:
+
+```bash
+mv main shazam
+./shazam --help
+```
+
 ### Tests
 
 The tests are inside the tests folder which inside is the script run_test.sh responsible for running the tests
