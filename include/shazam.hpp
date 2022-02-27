@@ -60,7 +60,9 @@ string toLowerCase(string str) {
 class File {
     const EFileValidStatus _status;
     const string _path;
+
     string reasonForStatus;
+
     public:
         File(string path, EFileValidStatus status): _status{status}, _path{path} {
             switch (status)
@@ -169,9 +171,11 @@ class FileFactory {
 
 class ProgressObserver {
     const int progressWidth;
+
     int observables = 0;
+
     std::unique_ptr<progresscpp::ProgressBar> pbar;
-    
+
     public:
         void update() {
             if (this->pbar != nullptr) {
@@ -182,6 +186,7 @@ class ProgressObserver {
 
         void done() {
             if (this->pbar != nullptr) {
+                this->observables = 0;
                 this->pbar->done();
                 cout << endl;
             }
@@ -211,11 +216,13 @@ class ProgressObserver {
 
 class Hash {
     string calculatedHash;
+
     bool hashsumWasCalculated = false;
+
     const string _type;
     const std::unique_ptr<hashwrapper> hasher;
     const std::shared_ptr<File> file;
-    
+
     std::shared_ptr<ProgressObserver> observer;
 
     void _calculate(void) {
@@ -224,7 +231,7 @@ class Hash {
     }
 
     public:
-        Hash(string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr) : 
+        Hash(string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr) :
             _type{hashname}, hasher{std::move(wrapper)}, file{file_ptr} {
             assert(file->isValid());
         }
@@ -278,8 +285,10 @@ class HashFactory: public wrapperfactory {
 
 class Checker {
     HashFactory hashFactory;
+
     const string hashtype;
     const std::shared_ptr<ProgressObserver> progress;
+
     std::list<std::shared_ptr<Hash>> validFilesHashes;
     std::list<std::shared_ptr<File>> invalidFilesList;
 
@@ -336,8 +345,10 @@ class Checker {
 
 class App {
     const string name;
+
     string hashType;
     FileFactory fileFactory;
+
     std::unique_ptr<ArgumentParser> args;
 
     void setupArgparser() {
@@ -388,7 +399,7 @@ class App {
     }
 
     std::unique_ptr<Checker> analizeInputFiles(string hashType) {
-        std::unique_ptr<Checker> check = std::make_unique<Checker>(hashType); 
+        std::unique_ptr<Checker> check = std::make_unique<Checker>(hashType);
 
         try {
             auto files = this->args->get<std::vector<string>>("files");
