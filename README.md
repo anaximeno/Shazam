@@ -49,6 +49,11 @@ The program will have the same name of the binary file being executed so if anot
 
 ```bash
 mv main shazam
+```
+
+Then run it with the new name:
+
+```bash
 ./shazam --help
 ```
 
