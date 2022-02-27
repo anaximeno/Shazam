@@ -3,7 +3,7 @@
 COMPILER=g++
 TESTFILE=tests.cpp
 CPP_VERSION=c++17
-ARGS=""
+RUNNING_ARGS=""
 OUTPUT_FILE=.test_result.shazam.tmp
 
 # To analyse the error then, you'll only need to use
@@ -25,7 +25,7 @@ then
     echo -n "[2] Running tests... "
 
     # Running #########################>>
-    ./$OUTPUT_FILE $ARGS > $TEST_LOG_FILE
+    ./$OUTPUT_FILE $RUNNING_ARGS > $TEST_LOG_FILE
     ###################################>>
 
     if [ -f $TEST_LOG_FILE ]
@@ -51,7 +51,7 @@ then
         #############>>
 
         echo ""
-        echo "Error Running -> ./$OUTPUT_FILE $ARGS > $TEST_LOG_FILE"
+        echo "Error Running -> ./$OUTPUT_FILE $RUNNING_ARGS > $TEST_LOG_FILE"
     fi
 else
     echo ""
