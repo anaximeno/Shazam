@@ -198,7 +198,7 @@ void test_checker_on_valid_and_invalid_files() {
 }
 
 void test_checker_hash_sum_calculation() {
-    shazam::Checker checker(false);
+    shazam::Checker checker;
     shazam::FileFactory ffactory;
 
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
