@@ -18,6 +18,12 @@ You can also give arguments to the compile.sh script, like, for example:
 sh compile.sh -Wall -static
 ```
 
+To create a release build use:
+
+```bash
+sh compile.sh -O3 -finline-functions -static -Wall
+```
+
 Finally execute it using:
 
 ```bash
