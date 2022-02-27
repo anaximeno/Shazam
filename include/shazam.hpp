@@ -322,7 +322,7 @@ class Checker {
     }
 
     public:
-        Checker(bool showProgressBar = true):
+        Checker(bool showProgressBar = false):
             showProgressBar{showProgressBar},
             progress{std::make_shared<ProgressObserver>(40)} {
         }
@@ -377,25 +377,30 @@ class App {
     // --- Arguments ---
     const string name;
 
-    Checker check;
     string hashType;
     FileFactory fileFactory;
 
+    std::unique_ptr<Checker> check;
     std::unique_ptr<ArgumentParser> args;
 
     // --- Methods ---
     void setupArgparser() {
-        // Must create the args first!
-        assert(this->args != nullptr);
+        assert(this->args != nullptr);      // -> Must initialize the argparser first
 
         this->args->add_argument("files").remaining()
                         .help("the name of the file");
+        
+        this->args->add_argument("--progress")
+                    .help("Show progress bars")
+                    .default_value(false)
+                    .implicit_value(true);
 
         for (auto& htype : HashFactory::VALID_HASH_TYPES_ARRAY) {
             const string lower = toLowerCase(htype);
+
             this->args->add_argument("-" + lower, "--" + lower + "sum")
-                            .help("Use this to calculate the " + lower + " hash sum")
-                            .default_value(false).implicit_value(true);
+                        .default_value(false).implicit_value(true)
+                        .help("Use this to calculate the " + lower + " hash sum");
         }
     }
 
@@ -432,12 +437,14 @@ class App {
     }
 
     void getAndRegisterInputFiles() {
+        assert(this->args != nullptr);      // -> Must setup and parse the args first
+        assert(this->check != nullptr);     // -> Must initialize the checker first
         try {
             // Getting the file from the argument parser
             auto files = this->args->get<std::vector<string>>("files");
             // Adding the files to the 'hash checker'
             for (auto& file : files) {
-                this->check.add(this->fileFactory.create(file), this->hashType);
+                this->check->add(this->fileFactory.create(file), this->hashType);
             }
         } catch (const std::logic_error& err) {
             // If err when parsing the files, the message below
@@ -445,6 +452,11 @@ class App {
             this->printErrMessage("No files were provided");
         }
     }
+
+    void initializeChecker() {
+        assert(this->args != nullptr);      // -> Must setup and parse the args first
+        this->check = std::make_unique<Checker>(this->args->get<bool>("--progress"));
+    } 
 
     public:
         App(string name): name{name}, args{std::make_unique<ArgumentParser>(name)} {
@@ -460,9 +472,10 @@ class App {
         int run(int argc, char** argv) {
             this->parse(argc, argv);
             this->getHashType();
+            this->initializeChecker();
             this->getAndRegisterInputFiles();
-            this->check.calculateHashSums();
-            this->check.displayResults(this->hashType);
+            this->check->calculateHashSums();
+            this->check->displayResults();
             return 0;
         }
 };
