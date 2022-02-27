@@ -64,13 +64,13 @@ class File {
             switch (status)
             {
             case NON_EXISTENT:
-                this->reasonForStatus = "Was not found! ";
+                this->reasonForStatus = "Was not found.";
                 break;
             case IS_DIRECTORY:
-                this->reasonForStatus = "Its a directory! ";
+                this->reasonForStatus = "Its a directory.";
                 break;
             case NON_PERMISSIVE:
-                this->reasonForStatus = "No permissions to read! ";
+                this->reasonForStatus = "No permissions to read.";
                 break;
             case NON_READABLE:
                 this->reasonForStatus = "Could not read!";
@@ -200,9 +200,11 @@ class ProgressObserver {
         }
 
         void init() {
-            this->pbar = std::make_unique<progresscpp::ProgressBar>(
-                this->getObservablesNumber(), this->progressWidth
-            );
+            if (this->getObservablesNumber() > 0) {
+                this->pbar = std::make_unique<progresscpp::ProgressBar>(
+                    this->getObservablesNumber(), this->progressWidth
+                );
+            }
         }
 
         ProgressObserver(int progressWidth):
