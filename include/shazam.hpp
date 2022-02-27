@@ -339,7 +339,14 @@ class Checker {
         }
 
         void calculateHashSums() {
-            if (this->showProgressBar) { this->progress->init(); }
+            if (this->showProgressBar) {
+                // add observer for the init operation
+                this->progress->increaseObervableCounter();
+                // initialize the progress bar
+                this->progress->init();
+                // after calling init, update the progress bar
+                this->progress->update();
+            }
             std::for_each(
                 this->validFilesHashes.begin(),
                 this->validFilesHashes.end(),
