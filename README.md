@@ -2,6 +2,8 @@
 This is a tool for calculating different type of hash sums like MD5, SHA256, etc. Its use is intended primarly on *nix based Operating Systems.
 
 ### Build
+The requirements are: **g++>=8**  
+  
 To compile the program, execute to following command on the root dir of the program:
 
 ```bash
