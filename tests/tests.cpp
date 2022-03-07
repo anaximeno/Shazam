@@ -21,7 +21,7 @@ void test_file_factory_non_existent_file(void) {
     std::shared_ptr<shazam::File> file = factory.create("i_dont_exist.txt");
 
     ASSERT("Testing FileFactory for a non existent file",
-        file->status() == shazam::EFileValidStatus::NON_EXISTENT
+        file->status() == shazam::EFileStatus::NON_EXISTENT
     );
 
     ASSERT_EQUALS(file->isValid(), false);
@@ -32,7 +32,7 @@ void test_file_factory_on_directories(void) {
     std::shared_ptr<shazam::File> file = factory.create("./");
 
     ASSERT("Testing FileFactory on directories",
-        file->status() == shazam::EFileValidStatus::IS_DIRECTORY
+        file->status() == shazam::EFileStatus::IS_DIRECTORY
     );
 
     ASSERT_EQUALS(file->isValid(), false);
@@ -47,7 +47,7 @@ void test_file_factory_on_non_permissive_files(void) {
 
     ASSERT(
         "Testing FileFactory for non permissive files",
-        file->status() == shazam::EFileValidStatus::NON_PERMISSIVE
+        file->status() == shazam::EFileStatus::NON_PERMISSIVE
     );
 
     std::system("rm .filefortest.shazam.tmp");
@@ -66,7 +66,7 @@ void test_md5sum() {
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto hash = hfactory.createFileHash("MD5", ffactory.create(VALID_FILE_S_PATH));
+    const auto hash = hfactory.hashFile("MD5", ffactory.create(VALID_FILE_S_PATH));
     const string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing MD5 hash sum", VALID_FILE_S_MD5SUM == CALCULATED);
@@ -76,7 +76,7 @@ void test_sha1sum() {
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto hash = hfactory.createFileHash("SHA1", ffactory.create(VALID_FILE_S_PATH));
+    const auto hash = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH));
     const string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA1 hash sum", VALID_FILE_S_SHA1SUM == CALCULATED);
@@ -86,7 +86,7 @@ void test_sha256sum() {
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto hash = hfactory.createFileHash("SHA256", ffactory.create(VALID_FILE_S_PATH));
+    const auto hash = hfactory.hashFile("SHA256", ffactory.create(VALID_FILE_S_PATH));
     const string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA256 hash sum", VALID_FILE_S_SHA256SUM == CALCULATED);
@@ -96,7 +96,7 @@ void test_sha384sum() {
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto hash = hfactory.createFileHash("SHA384", ffactory.create(VALID_FILE_S_PATH));
+    const auto hash = hfactory.hashFile("SHA384", ffactory.create(VALID_FILE_S_PATH));
     const string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA384 hash sum", VALID_FILE_S_SHA384SUM == CALCULATED);
@@ -106,7 +106,7 @@ void test_sha512sum() {
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto hash = hfactory.createFileHash("SHA512", ffactory.create(VALID_FILE_S_PATH));
+    const auto hash = hfactory.hashFile("SHA512", ffactory.create(VALID_FILE_S_PATH));
     const string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA512 hash sum", VALID_FILE_S_SHA512SUM == CALCULATED);
@@ -173,7 +173,7 @@ void test_checker_on_invalid_files() {
     checker.add(ffactory.create("i_dont_exist.txt"), "SHA1");
 
     ASSERT("Checker.validHashesList should be empty", checker.getValidHashesList().empty());
-    ASSERT("Checker.invalidFilesList should not be empty", (!checker.getInvalidFilesList().empty()));
+    ASSERT("Checker.invalidFilesList should not be empty", !checker.getInvalidFilesList().empty());
 }
 
 void test_checker_on_valid_files() {
@@ -203,8 +203,6 @@ void test_checker_hash_sum_calculation() {
 
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA256");
-
-    checker.calculateHashSums();
 
     const auto list = checker.getValidHashesList();
 
