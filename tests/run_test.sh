@@ -1,5 +1,5 @@
 #!/bin/bash
-
+DATETIME=$(date)
 COMPILER=g++
 TESTFILE=tests.cpp
 CPP_VERSION=c++17
@@ -8,50 +8,37 @@ OUTPUT_FILE=.test_result.shazam.tmp
 
 # To analyse the error then, you'll only need to use
 # the command: cat test.last.log.txt
-TEST_LOG_FILE=test.last.log.txt
+TEST_LOG_FILE=tests.log
+LAST_LOG_FILE=.$TEST_LOG_FILE.tmp
 
 
 echo -n "[1] Compiling... "
-
-# Running #########################################>>
 $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE
-###################################################>>
-
 
 if [ -f $OUTPUT_FILE ]
 then
     echo "Done!"
     echo ""
     echo -n "[2] Running tests... "
+    ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE
 
-    # Running #########################>>
-    ./$OUTPUT_FILE $RUNNING_ARGS > $TEST_LOG_FILE
-    ###################################>>
-
-    if [ -f $TEST_LOG_FILE ]
+    if [ -f $LAST_LOG_FILE ]
     then
         echo "Done!"
         echo ""
         echo -n "[3] Cleaning... "
-
-        # Running ###>>
         rm $OUTPUT_FILE
-        #############>>
-
         echo "Done!"
+        # Store the last test log 
+        echo -n "[$DATETIME] " >> $TEST_LOG_FILE && cat $LAST_LOG_FILE >> $TEST_LOG_FILE
+        echo "" >> $TEST_LOG_FILE
         echo ""
-        echo -n "[4] Result: "
-
-        # Running ######>>
-        cat $TEST_LOG_FILE
-        ################>>
+        echo -n "[4] Result: " && cat $LAST_LOG_FILE
+        rm $LAST_LOG_FILE
     else
-        # Running ###>>
         rm $OUTPUT_FILE
-        #############>>
-
         echo ""
-        echo "Error Running -> ./$OUTPUT_FILE $RUNNING_ARGS > $TEST_LOG_FILE"
+        echo "Error Running -> ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE"
     fi
 else
     echo ""
