@@ -1,2 +1,2 @@
-test.last.log.txt
+*.log
 *.out
