@@ -81,12 +81,10 @@ class File {
     const std::string _path;
 
     public:
-        File(std::string path, EFileStatus status) :
-        _status{status}, _path{path} {
-            //
-        }
+        File(std::string path, EFileStatus status)
+            : _status(status), _path(path) {}
 
-        std::string path() {
+        std::string path() const {
             return this->_path;
         }
 
@@ -102,7 +100,7 @@ class File {
             return this->isValid() ? fs::file_size(this->path()) : 0;
         }
 
-        std::string explainStatus() {
+        std::string explainStatus() const {
             return explainFileStatus(this->status());
         }
 };
@@ -166,18 +164,29 @@ class FileFactory {
 
 
 class ProgressObserver {
+    private:
+        int activeObservables;
+
+        // used to set the width of the progress bar
+        const int progressWidth;
+
+        // points to the progress bar instance
+        std::unique_ptr<
+            progresscpp::ProgressBar
+        > progressBar;
+    
     public:
         void update() {
             this->activeObservables--;
-            if (this->pbar != nullptr) {
-                ++(*(this->pbar));
-                this->pbar->display();
+            if (progressBar != nullptr) {
+                ++(*progressBar);
+                progressBar->display();
             }
         }
 
         void done() {
-            if (this->pbar != nullptr) {
-                this->pbar->done();
+            if (progressBar != nullptr) {
+                progressBar->done();
                 std::cout << std::endl;
             }
         }
@@ -191,26 +200,17 @@ class ProgressObserver {
         }
 
         void init() {
-            if (this->getObservablesNumber() > 0) {
-                this->pbar = std::make_unique<progresscpp::ProgressBar>(
-                    this->getObservablesNumber(), this->progressWidth);
+            const int observables = getObservablesNumber();
+            if (observables > 0) {
+                progressBar = std::make_unique<progresscpp::ProgressBar>(
+                    observables, progressWidth);
             }
         }
 
-        ProgressObserver(int progressWidth):
-            progressWidth{progressWidth} {
-            //
-        }
-
-    private:
-        // used to count the number of observables
-        int activeObservables = 0;
-        // used to set the width of the progress bar
-        const int progressWidth;
-        // points to the progress bar instance
-        std::unique_ptr<
-            progresscpp::ProgressBar
-        > pbar;
+        ProgressObserver(int progressWidth)
+            : progressWidth(progressWidth) {
+                activeObservables = 0;
+            }
 };
 
 // To store hash sum in different formats
@@ -221,85 +221,79 @@ template <class T> struct SHashSum {
 
 
 class Hash {
-    SHashSum<int> intHashsum{false, 0};
-    SHashSum<std::string> hexHashSum{false, ""};
-    const std::string hashName;
+    SHashSum<int> intHashsum(false, 0);
+    SHashSum<std::string> hexHashSum(false, "");
     const std::shared_ptr<File> file;
+    const std::string hashName;
 
-    const std::unique_ptr<
-        hashlibpp::hashwrapper
-    > hasher;
-
-    std::shared_ptr<
-        ProgressObserver
-    > observer;
-
-    std::string calculateHashSum(void) {
-        return this->hasher->getHashFromFile(this->file->path());
-    }
+    const std::unique_ptr<hashlibpp::hashwrapper> hasher;
+    std::shared_ptr<ProgressObserver> observer;
 
     public:
-        Hash(std::string hashname,
+        Hash(
+            std::string hashname,
             std::unique_ptr<hashlibpp::hashwrapper> wrapper,
-            std::shared_ptr<File> file_ptr
-        ) : hashName{hashname}, file{file_ptr}, 
-            hasher{std::move(wrapper)}
-        {
-            assert(file->isValid());
-        }
+            std::shared_ptr<File> file_ptr)
+            : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {}
 
         void registerObserver(std::shared_ptr<ProgressObserver> obs) {
             obs->increaseObervableCounter();
-            this->observer = obs;
+            observer = obs;
         }
 
         void notify(void) {
-            this->observer->update();
+            observer->update();
         }
 
         void calculate(void) {
-            if (!this->hexHashSum.wasCalculated) {
-                this->hexHashSum.value = this->calculateHashSum();
-                this->hexHashSum.wasCalculated = true;
+            if (!hexHashSum.wasCalculated) {
+                hexHashSum.value = calculateHashSum();
+                hexHashSum.wasCalculated = true;
             } else {
                 // Do Nothing!
             }
         }
 
         std::string type(void) {
-            return this->hashName;
+            return hashName;
         }
 
         std::string getStringHashSum(void) {
-            if (!this->hexHashSum.wasCalculated) {
-                this->calculate();
+            if (!hexHashSum.wasCalculated) {
+                calculate();
             }
-            return this->hexHashSum.value;
+
+            return hexHashSum.value;
         }
 
         int getIntHashSum(void) {
-            if (!this->intHashsum.wasCalculated) {
-                this->intHashsum.value = hexaToInt(this->getStringHashSum());
-                this->intHashsum.wasCalculated = true;
-                return this->getIntHashSum();
+            if (!intHashsum.wasCalculated) {
+                intHashsum.value = hexaToInt(getStringHashSum());
+                intHashsum.wasCalculated = true;
+                return getIntHashSum();
             }
-            return this->intHashsum.value;
+
+            return intHashsum.value;
         }
 
         std::string getFilePath(void) {
-            return this->file->path();
+            return file->path();
+        }
+
+    private:
+        std::string calculateHashSum(void) {
+            return hasher->getHashFromFile(file->path());
         }
 };
 
 
-class HashFactory: public hashlibpp::wrapperfactory {
+class HashFactory: protected hashlibpp::wrapperfactory {
     public:
         static constexpr std::array<const char*, 5>
         VALID_HASH_TYPES_ARRAY = {
             "MD5",  "SHA1",  "SHA256", "SHA384",  "SHA512"};
 
         std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file) {
-            assert(file->isValid()); // The file must be valid, since it has to be open
             auto wrapper = std::unique_ptr<hashlibpp::hashwrapper>(this->create(hashtype));
             return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
         }
@@ -402,26 +396,44 @@ class Checker {
 
 class App {
     const std::string name;
+
     std::string hashType;
     FileFactory fileFactory;
-    std::unique_ptr<Checker> check;
+
+    std::unique_ptr<
+        Checker
+        > check;
     std::unique_ptr<
         argparse::ArgumentParser
-    > args;
+        > args;
 
     void setupArgparser() {
-        assert(this->args != nullptr);
-        this->args->add_argument("files").remaining()
-                        .help("the name of the file");
-        this->args->add_argument("--progress")
-                    .help("Show progress bars")
+        this->args->add_argument("files")
+                    .help("same or Path of the files being used.")
+                    .remaining();
+
+        this->args->add_argument("-hi", "--hide-invalid")
+                    .help("side Invalid files, instead of showing them.")
                     .default_value(false)
                     .implicit_value(true);
+
+        this->args->add_argument("-s", "--save")
+                    .help("save the hashsums calculated on a file")
+                    .default_value(false)
+                    .implicit_value(true);
+
+        this->args->add_argument("--progress")
+                    .help("show progress bars when calculating hashsums")
+                    .default_value(false)
+                    .implicit_value(true);
+
         for (auto& htype : HashFactory::VALID_HASH_TYPES_ARRAY) {
             const std::string lower = toLowerCase(htype);
+
             this->args->add_argument("-" + lower, "--" + lower + "sum")
-                        .default_value(false).implicit_value(true)
-                        .help("Use this to calculate the " + lower + " hash sum");
+                        .help("use this to calculate the " + lower + " hash sum")
+                        .default_value(false)
+                        .implicit_value(true);
         }
     }
 
@@ -448,53 +460,49 @@ class App {
     void parse(int argc, char** argv) {
         try {
             this->args->parse_args(argc, argv);
-        } catch (const std::runtime_error& err) {
-            const auto arguments = *(this->args);
-            std::cerr << err.what() << std::endl;
-            std::cerr << arguments << std::endl;
+        } catch (const std::runtime_error &err) {
+            const auto arguments = *( this->args );
+
+            std::cerr << err.what()
+                      << std::endl
+                      << arguments
+                      << std::endl;
+
             std::exit(1);
         }
     }
 
     void getAndRegisterInputFiles() {
-        assert(this->args != nullptr);///// -> Must setup and parse the args first
-        assert(this->check != nullptr);//// -> Must initialize the checker first
         try {
-            // Getting the file from the argument parser
+            std::shared_ptr<File> factoredFile;
             auto files = this->args->get<std::vector<std::string>>("files");
             for (auto& file : files) {
-                this->check->add(this->fileFactory.create(file), this->hashType);
+                factoredFile = this->fileFactory.create(file);
+                this->check->add(factoredFile, this->hashType);
             }
-        } catch (const std::logic_error& err) {
-            // If err when parsing the files, the message below
-            // will be shown to the user:
+        } catch (const std::logic_error &err) {
             this->printErrMessage("No files were provided");
         }
     }
 
-    void initializeChecker() {
-        assert(this->args != nullptr);//// -> Must setup and parse the args first
-        this->check = std::make_unique<Checker>(this->args->get<bool>("--progress"));
-    } 
 
     public:
-        App(std::string name): name{name},
-            args{std::make_unique<argparse::ArgumentParser>(name)} {
+        App(std::string name)
+            : name(name), args(std::make_unique<argparse::ArgumentParser>(name)) {
             this->setupArgparser();
+            this->check = std::make_unique<Checker>(this->args->get<bool>("--progress"));
         }
 
-        void printErrMessage(const std::string& message) {
-            std::cerr << "Err: " << message;
-            std::cout << "\n" << std::endl;
-            std::cout << this->args->help().str();
-            std::cout << std::endl;
-            std::exit(1);
+        void printErrMessage(const std::string &message, const int errNum = 1) {
+            const auto helpMessage = this->args->help().str();
+            std::cerr << "Err: " << message << std::endl;
+            std::cerr << std::endl << helpMessage << std::endl;
+            std::exit(errNum);
         }
 
-        int run(int argc, char** argv) {
+        int run(int &argc, char** &argv) {
             this->parse(argc, argv);
             this->getHashType();
-            this->initializeChecker();
             this->getAndRegisterInputFiles();
             this->check->calculateHashSums();
             this->check->displayResults();
