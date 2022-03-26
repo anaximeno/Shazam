@@ -17,13 +17,13 @@ sh compile.sh
 
 You can also give arguments to the compile.sh script, like, for example:
 ```bash
-sh compile.sh -Wall -static
+sh compile.sh -Wall
 ```
 
 To create a release build use:
 
 ```bash
-sh compile.sh -O3 -finline-functions -static -Wall
+sh compile.sh -O3 -finline-functions -Wall
 ```
 
 Finally execute it using:
