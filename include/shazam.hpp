@@ -288,7 +288,8 @@ class Hash {
 
 class HashFactory: protected hashlibpp::wrapperfactory {
     public:
-        static constexpr std::array<const char*, 5> VALID_HASH_TYPES_ARRAY = {"MD5",  "SHA1",  "SHA256", "SHA384",  "SHA512"};
+        static constexpr std::array<const char*, 5> HASH_TYPES = {
+            "MD5",  "SHA1",  "SHA256", "SHA384",  "SHA512"};
 
         std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file) {
             auto wrapper = std::unique_ptr<hashlibpp::hashwrapper>(create(hashtype));
@@ -299,17 +300,14 @@ class HashFactory: protected hashlibpp::wrapperfactory {
 
 class Checker {
     const bool showProgressBar;
-    HashFactory hashFactory;
+    const bool showInvalidFiles;
     const std::shared_ptr<ProgressObserver> progress;
     std::list<std::shared_ptr<Hash>> validFilesHashes;
     std::list<std::shared_ptr<File>> invalidFilesList;
+    HashFactory hashFactory;
 
-    void displayValidHashes(const std::string& hashtype) {
+    void displayValidHashes() {
         if (!validFilesHashes.empty()) {
-            if (hashtype != "") {
-                std::cout << hashtype << "SUM:" << std::endl;
-            }
-
             for (auto& hash : validFilesHashes) {
                 std::cout << hash->getStringHashSum() << " ";
                 std::cout << hash->getFilePath() << "\n";
@@ -318,7 +316,7 @@ class Checker {
     }
 
     void displayInvalidFiles() {
-        if (!invalidFilesList.empty()) {
+        if (!invalidFilesList.empty() && showInvalidFiles) {
             std::cout << std::endl << "Invalid Files:\n";
 
             for (auto& file : invalidFilesList) {
@@ -331,9 +329,15 @@ class Checker {
     }
 
     public:
-        Checker(bool showProgressBar = false)
-            : showProgressBar(showProgressBar), progress(std::make_shared<ProgressObserver>(40)) {
-                //
+        Checker(bool showProgressBar, bool showInvalidFiles)
+        : showProgressBar(showProgressBar), showInvalidFiles(showInvalidFiles),
+          progress(std::make_shared<ProgressObserver>(40)) {
+            //
+        }
+
+        Checker()
+        : Checker(false, true) {
+            //
         }
 
         void add(std::shared_ptr<File> file, std::string hashtype) {
@@ -366,12 +370,12 @@ class Checker {
             );
         }
 
-        void displayResults(const std::string hashtype = "") {
+        void displayResults() {
             if (showProgressBar) {
                 progress->done();
             }
 
-            displayValidHashes(hashtype);
+            displayValidHashes();
             displayInvalidFiles();
         }
 
@@ -384,51 +388,53 @@ class Checker {
         }
 };
 
+using argparse::ArgumentParser;
 
 class App {
     std::string hashType;
     const std::string name;
-    FileFactory fileFactory;
+
+    struct CommandArguments {
+        const int argc;
+        const char* const* argv;
+    };
+
+    CommandArguments commandArgs;
+    
     std::unique_ptr<Checker> checker;
-    std::unique_ptr<argparse::ArgumentParser> argumentParser;
+    std::unique_ptr<ArgumentParser> args;
+    FileFactory fileFactory;
 
     void setupArgparser() {
-        argumentParser->add_argument("files")
-                    .help("path of the files to perform hash sums.")
-                    .remaining();
+        args->add_argument("files")
+                .help("path of the files to perform hash sums.")
+                .remaining();
 
-        // TODO: implement this
-        argumentParser->add_argument("-s", "--save")
-                    .help("save the hashsums calculated on a file")
+        for (auto& htype : HashFactory::HASH_TYPES) {
+            const std::string lower = toLowerCase(htype);
+            args->add_argument("-" + lower, "--" + lower + "sum")
+                    .help("use this to calculate the " + lower + " hash sum")
                     .default_value(false)
                     .implicit_value(true);
-
-        for (auto& htype : HashFactory::VALID_HASH_TYPES_ARRAY) {
-            const std::string lower = toLowerCase(htype);
-            argumentParser->add_argument("-" + lower, "--" + lower + "sum")
-                        .help("use this to calculate the " + lower + " hash sum")
-                        .default_value(false)
-                        .implicit_value(true);
         }
 
-        argumentParser->add_argument("--progress")
-                    .help("show progress bars when calculating hashsums")
-                    .default_value(false)
-                    .implicit_value(true);
+        args->add_argument("--progress")
+                .help("show progress bars when calculating hashsums")
+                .default_value(false)
+                .implicit_value(true);
 
         // TODO: implement this
-        argumentParser->add_argument("--hide-invalid")
-                    .help("side Invalid files, instead of showing them.")
-                    .default_value(false)
-                    .implicit_value(true);
+        args->add_argument("--hide-invalid")
+                .help("side Invalid files, instead of showing them.")
+                .default_value(false)
+                .implicit_value(true);
     }
 
     void getHashType() {
         int counter = 0;
-        for (auto& htype : HashFactory::VALID_HASH_TYPES_ARRAY) {
-            if (argumentParser->is_used("-" + toLowerCase(htype))) {
+        for (auto& htype : HashFactory::HASH_TYPES) {
+            if (args->is_used("-" + toLowerCase(htype)) && ++counter) {
                 hashType = htype;
-                counter++;
             }
         }
 
@@ -443,11 +449,11 @@ class App {
         }
     }
 
-    void parse(int argc, char** argv) {
+    void parseArguments() {
         try {
-            argumentParser->parse_args(argc, argv);
+            args->parse_args(commandArgs.argc, commandArgs.argv);
         } catch (const std::runtime_error &err) {
-            const auto arguments = *( argumentParser );
+            const auto arguments = *( args );
 
             std::cerr << err.what()
                       << std::endl
@@ -460,7 +466,7 @@ class App {
 
     void getAndRegisterInputFiles() {
         try {
-            const auto files = argumentParser->get<std::vector<std::string>>("files");
+            const auto files = args->get<std::vector<std::string>>("files");
             for (auto& file : files) {
                 checker->add(this->fileFactory.create(file), hashType);
             }
@@ -469,17 +475,22 @@ class App {
         }
     }
 
-
     public:
-        App(std::string name)
-            : name(name), argumentParser(std::make_unique<argparse::ArgumentParser>(name))
-        {
+        App(std::string name, int& argc, char**& argv)
+        : name(name), args(std::make_unique<ArgumentParser>(name)),
+          commandArgs(CommandArguments{.argc = argc, .argv = argv}) {
+            // ---- space comment ----
             setupArgparser();
-            checker = std::make_unique<Checker>(argumentParser->get<bool>("--progress"));
+            parseArguments();
+
+            const bool showProgressBar = args->get<bool>("--progress");
+            const bool showInvalidFiles = !args->get<bool>("--hide-invalid");
+
+            checker = std::make_unique<Checker>(showProgressBar, showInvalidFiles);
         }
 
-        void printErrMessage(const std::string &message, const int errNum = 1) {
-            const auto helpMessage = argumentParser->help().str();
+        void printErrMessage(const std::string& message, const int errNum = 1) {
+            const auto helpMessage = args->help().str();
 
             std::cerr << "Err: "
                       << message
@@ -491,8 +502,7 @@ class App {
             std::exit(errNum);
         }
 
-        int run(int &argc, char** &argv) {
-            parse(argc, argv);
+        int run() {
             getHashType();
             getAndRegisterInputFiles();
             checker->calculateHashSums();
