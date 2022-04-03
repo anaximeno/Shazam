@@ -61,9 +61,7 @@ Then run it with the new name:
 
 ### Tests
 
-The tests are inside the tests folder which inside is the script run_test.sh responsible for running the tests
-and the main test file named tests.cpp which contains all tests inside. So, basically, to run the unit and integration test on that file,
-it would be necessary to execute the following commands:
+The tests are inside the tests directory. To run the tests, you'll have hust to run the bash script named 'run_test.sh', located inside the tests dir. The file named tests.cpp contains all tests inside. Basically, to run the unit and integrations tests of the program the following commands should be executed:
 
 ```bash
 cd ./tests
