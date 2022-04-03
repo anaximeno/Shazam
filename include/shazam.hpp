@@ -213,6 +213,7 @@ class ProgressObserver {
             }
 };
 
+using hashlibpp::hashwrapper;
 
 class Hash {
     // stores hash sum in different formats
@@ -223,17 +224,16 @@ class Hash {
 
     SHashSum<int> intHashsum{false, 0};
     SHashSum<std::string> hexHashSum{false, ""};
-    const std::shared_ptr<File> file;
     const std::string hashName;
-    const std::unique_ptr<hashlibpp::hashwrapper> hasher;
+    const std::shared_ptr<File> file;
+    const std::unique_ptr<hashwrapper> hasher;
     std::shared_ptr<ProgressObserver> observer;
 
     public:
-        Hash(
-            std::string hashname,
-            std::unique_ptr<hashlibpp::hashwrapper> wrapper,
-            std::shared_ptr<File> file_ptr)
-            : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {}
+        Hash(std::string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr)
+        : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {
+            //
+        }
 
         void registerObserver(std::shared_ptr<ProgressObserver> obs) {
             obs->increaseObervableCounter();
@@ -292,7 +292,7 @@ class HashFactory: protected hashlibpp::wrapperfactory {
             "MD5",  "SHA1",  "SHA256", "SHA384",  "SHA512"};
 
         std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file) {
-            auto wrapper = std::unique_ptr<hashlibpp::hashwrapper>(create(hashtype));
+            auto wrapper = std::unique_ptr<hashwrapper>(create(hashtype));
             return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
         }
 };
@@ -399,10 +399,9 @@ class App {
         const char* const* argv;
     };
 
-    CommandArguments commandArgs;
-    
     std::unique_ptr<Checker> checker;
     std::unique_ptr<ArgumentParser> args;
+    CommandArguments commandArgs;
     FileFactory fileFactory;
 
     void setupArgparser() {
@@ -423,7 +422,6 @@ class App {
                 .default_value(false)
                 .implicit_value(true);
 
-        // TODO: implement this
         args->add_argument("--hide-invalid")
                 .help("side Invalid files, instead of showing them.")
                 .default_value(false)
@@ -480,6 +478,7 @@ class App {
         : name(name), args(std::make_unique<ArgumentParser>(name)),
           commandArgs(CommandArguments{.argc = argc, .argv = argv}) {
             // ---- space comment ----
+            ;
             setupArgparser();
             parseArguments();
 
