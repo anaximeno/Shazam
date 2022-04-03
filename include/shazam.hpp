@@ -82,7 +82,9 @@ class File {
 
     public:
         File(std::string path, EFileStatus status)
-            : _status(status), _path(path) {}
+        : _status(status), _path(path) {
+            //
+        }
 
         std::string path() const {
             return _path;
@@ -162,24 +164,21 @@ class FileFactory {
         }
 };
 
+using progresscpp::ProgressBar;
 
 class ProgressObserver {
     private:
         int activeObservables;
-
         // used to set the width of the progress bar
         const int progressWidth;
-
         // points to the progress bar instance
-        std::unique_ptr<
-            progresscpp::ProgressBar
-        > progressBar;
+        std::unique_ptr<ProgressBar> progressBar;
     
     public:
         void update() {
             activeObservables--;
             if (progressBar != nullptr) {
-                ++(*progressBar);
+                ++( *progressBar );
                 progressBar->display();
             }
         }
@@ -202,15 +201,14 @@ class ProgressObserver {
         void init() {
             const int observables = getObservablesNumber();
             if (observables > 0) {
-                progressBar = std::make_unique<progresscpp::ProgressBar>(
-                    observables, progressWidth);
+                progressBar = std::make_unique<ProgressBar>(observables, progressWidth);
             }
         }
 
         ProgressObserver(int progressWidth)
-            : progressWidth(progressWidth) {
-                activeObservables = 0;
-            }
+        : progressWidth(progressWidth) {
+            activeObservables = 0;
+        }
 };
 
 using hashlibpp::hashwrapper;
@@ -374,7 +372,6 @@ class Checker {
             if (showProgressBar) {
                 progress->done();
             }
-
             displayValidHashes();
             displayInvalidFiles();
         }
@@ -437,11 +434,9 @@ class App {
         }
 
         if (counter == 0) {
-            printErrMessage(
-                "Must specify the type of hash sum!");
+            printErrMessage("Must specify the type of hash sum!");
         } else if (counter > 1) {
-            printErrMessage(
-                "You can chose only one hash type each time!");
+            printErrMessage("You can chose only one hash type each time!");
         } else {
             // DO NOTHING!
         }
@@ -481,7 +476,7 @@ class App {
             ;
             setupArgparser();
             parseArguments();
-
+            ;
             const bool showProgressBar = args->get<bool>("--progress");
             const bool showInvalidFiles = !args->get<bool>("--hide-invalid");
 
