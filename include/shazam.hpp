@@ -469,17 +469,14 @@ class App {
     }
 
     public:
-        App(std::string name, int& argc, char**& argv)
-        : name(name), args(std::make_unique<ArgumentParser>(name)),
+        App(std::string name, std::string version, int& argc, char**& argv)
+        : name(name), args(std::make_unique<ArgumentParser>(name, version)),
           commandArgs(CommandArguments{.argc = argc, .argv = argv}) {
-            // ---- space comment ----
-            ;
-            setupArgparser();
-            parseArguments();
-            ;
+            // ---- space ----
+            this->setupArgparser();
+            this->parseArguments();
             const bool showProgressBar = args->get<bool>("--progress");
             const bool showInvalidFiles = !args->get<bool>("--hide-invalid");
-
             checker = std::make_unique<Checker>(showProgressBar, showInvalidFiles);
         }
 
