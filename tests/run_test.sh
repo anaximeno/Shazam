@@ -15,14 +15,15 @@ LAST_LOG_FILE=.$TEST_LOG_FILE.tmp
 echo -n "[1] Compiling... "
 $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE
 
-if [ -f $OUTPUT_FILE ]
+if [[ $? -eq 0 ]]
 then
     echo "Done!"
     echo ""
     echo -n "[2] Running tests... "
+
     ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE
 
-    if [ -f $LAST_LOG_FILE ]
+    if [[ $? -eq 0 ]]
     then
         echo "Done!"
         echo ""
