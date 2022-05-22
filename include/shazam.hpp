@@ -13,6 +13,8 @@
 #ifndef __SHAZAM_HPP
 #define __SHAZAM_HPP
 
+#define VERSION "Shazam 1.1"
+
 // ------------------------------------------------------------------
 
 namespace shazam { // -- MAIN NAMESPACE: shazam --
@@ -469,8 +471,8 @@ class App {
     }
 
     public:
-        App(std::string name, std::string version, int& argc, char**& argv)
-        : name(name), args(std::make_unique<ArgumentParser>(name, version)),
+        App(std::string name, int& argc, char**& argv)
+        : name(name), args(std::make_unique<ArgumentParser>(name, VERSION)),
           commandArgs(CommandArguments{.argc = argc, .argv = argv}) {
             // ---- space ----
             this->setupArgparser();
