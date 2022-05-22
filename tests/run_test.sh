@@ -12,36 +12,47 @@ TEST_LOG_FILE=tests.log
 LAST_LOG_FILE=.$TEST_LOG_FILE.tmp
 
 
-echo -n "[1] Compiling... "
-$COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE
+PRINT_ERR() {
+    echo -e "\nError Running -> $1"
+}
+
+COMPILE() {
+    $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE
+}
+
+RUN_TEST() {
+    ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE
+}
+
+SAVE_LOG() {
+    echo -n "[$DATETIME] " >> $TEST_LOG_FILE && cat $LAST_LOG_FILE >> $TEST_LOG_FILE
+    echo "" >> $TEST_LOG_FILE
+}
+
+echo -n "[1] Compiling... " && COMPILE
 
 if [[ $? -eq 0 ]]
 then
-    echo "Done!"
-    echo ""
+    echo -e "Done!\n"
     echo -n "[2] Running tests... "
-
-    ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE
+    RUN_TEST
 
     if [[ $? -eq 0 ]]
     then
-        echo "Done!"
-        echo ""
+        echo -e "Done!\n"
         echo -n "[3] Cleaning... "
         rm $OUTPUT_FILE
-        echo "Done!"
-        # Store the last test log 
-        echo -n "[$DATETIME] " >> $TEST_LOG_FILE && cat $LAST_LOG_FILE >> $TEST_LOG_FILE
-        echo "" >> $TEST_LOG_FILE
-        echo ""
-        echo -n "[4] Result: " && cat $LAST_LOG_FILE
+
+        echo Done!
+
+        # Store the last test log
+        SAVE_LOG
+        echo -n -e "\n[4] Result: " && cat $LAST_LOG_FILE
         rm $LAST_LOG_FILE
     else
         rm $OUTPUT_FILE
-        echo ""
-        echo "Error Running -> ./$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE"
+        PRINT_ERR "$OUTPUT_FILE $RUNNING_ARGS > $LAST_LOG_FILE"
     fi
 else
-    echo ""
-    echo "Error Running -> $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE"
+    PRINT_ERR "$COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE"
 fi
