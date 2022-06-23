@@ -1,5 +1,5 @@
 # Shazam
-This is a tool for calculating different type of hash sums like MD5, SHA256, etc. Its use is intended primarly on *nix based Operating Systems.
+This is a command-line tool for calculating different types of hash sums like MD5, SHA256, etc. Its use is intended primarily on \*nix-based Operating Systems.
 
 ### Build
 The requirements are: **g++>=8**  
