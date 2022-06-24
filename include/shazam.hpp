@@ -422,7 +422,7 @@ class App {
                 .implicit_value(true);
 
         args->add_argument("--hide-invalid")
-                .help("side Invalid files, instead of showing them.")
+                .help("hide Invalid files, instead of showing them.")
                 .default_value(false)
                 .implicit_value(true);
     }
