@@ -10,20 +10,15 @@ To compile the program, execute to following command on the root dir of the prog
 g++ main.cpp -std=c++17 -o main
 ```
 
-Or using the compile.sh script:
+Or using the Makefile:
 ```bash
-sh compile.sh
-```
-
-You can also give arguments to the compile.sh script, like, for example:
-```bash
-sh compile.sh -Wall
+make
 ```
 
 To create a release build use:
 
 ```bash
-sh compile.sh -O3 -finline-functions -Wall
+make release
 ```
 
 Finally execute it using:
