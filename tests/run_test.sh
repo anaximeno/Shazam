@@ -6,8 +6,8 @@ CPP_VERSION=c++17
 RUNNING_ARGS=""
 OUTPUT_FILE=.test_result.shazam.tmp
 
-# To analyse the error then, you'll only need to use
-# the command: cat test.last.log.txt
+# The log of the test will be stored on the file bellow
+# and can be reviwed using the cat command.
 TEST_LOG_FILE=tests.log
 LAST_LOG_FILE=.$TEST_LOG_FILE.tmp
 
