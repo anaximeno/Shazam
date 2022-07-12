@@ -5,7 +5,7 @@
 #include "../include/shazam.hpp"
 
 
-#define VALID_FILE_S_PATH       "static_file.txt"
+#define VALID_FILE_S_PATH       ".testfile.donotchange.txt"
 #define VALID_FILE_S_MD5SUM     "e2c1267c569e72c2365d6fab0a5167c0"
 #define VALID_FILE_S_SHA1SUM    "5652d27b9769b7e1e11af27915a421272429cade"
 #define VALID_FILE_S_SHA256SUM  "5e093ff408286e5d57c1b4bbb0f4aad439ec070ed42796946e41bea3ac2286be"
