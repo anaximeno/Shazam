@@ -485,12 +485,8 @@ class App {
         void printErrMessage(const std::string& message, const int errNum = 1) {
             const auto helpMessage = args->help().str();
 
-            std::cerr << "Err: "
-                      << message
-                      << std::endl;
-            std::cerr << std::endl
-                      << helpMessage
-                      << std::endl;
+            std::cerr << "Err: " << message << std::endl
+                      << std::endl << helpMessage << std::endl;
 
             std::exit(errNum);
         }
