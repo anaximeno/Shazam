@@ -1,3 +1,6 @@
+#ifndef __SHAZAM_HPP
+#define __SHAZAM_HPP
+
 // ------ Include Libs ----------------------------------------------
 
 #include <iostream>
@@ -10,10 +13,6 @@
 #include "external/argparse.hpp"
 #include "external/ProgressBar.hpp"
 
-#ifndef __SHAZAM_HPP
-#define __SHAZAM_HPP
-
-#define VERSION "Shazam 1.1"
 
 // ------------------------------------------------------------------
 
@@ -136,7 +135,6 @@ class FileFactory {
                 isReadable = true;
             } catch(const std::exception& e) {
                 // TODO: do something here!
-                // NOTE: IDEA: Maybe add this err to some log file.
             }
         }
 
@@ -175,7 +173,7 @@ class ProgressObserver {
         const int progressWidth;
         // points to the progress bar instance
         std::unique_ptr<ProgressBar> progressBar;
-    
+
     public:
         void update() {
             activeObservables--;
@@ -299,8 +297,8 @@ class HashFactory: protected hashlibpp::wrapperfactory {
 
 
 class Checker {
-    const bool showProgressBar;
-    const bool showInvalidFiles;
+    bool showProgressBar;
+    bool showInvalidFiles;
     const std::shared_ptr<ProgressObserver> progress;
     std::list<std::shared_ptr<Hash>> validFilesHashes;
     std::list<std::shared_ptr<File>> invalidFilesList;
@@ -370,6 +368,14 @@ class Checker {
             );
         }
 
+        void setShowProgressBar(bool value) {
+            showProgressBar = value;
+        }
+
+        void setShowInvalidFiles(bool value) {
+            showInvalidFiles = value;
+        }
+
         void displayResults() {
             if (showProgressBar) {
                 progress->done();
@@ -390,17 +396,10 @@ class Checker {
 using argparse::ArgumentParser;
 
 class App {
-    std::string hashType;
     const std::string name;
-
-    struct CommandArguments {
-        const int argc;
-        const char* const* argv;
-    };
-
-    std::unique_ptr<Checker> checker;
+    const std::string version;
     std::unique_ptr<ArgumentParser> args;
-    CommandArguments commandArgs;
+    std::unique_ptr<Checker> checker;
     FileFactory fileFactory;
 
     void setupArgparser() {
@@ -416,54 +415,62 @@ class App {
                     .implicit_value(true);
         }
 
-        args->add_argument("--progress")
+        args->add_argument("--progress", "-P")
                 .help("show progress bars when calculating hashsums")
                 .default_value(false)
                 .implicit_value(true);
 
-        args->add_argument("--hide-invalid")
+        args->add_argument("--hide-invalid", "-H")
                 .help("hide Invalid files, instead of showing them.")
                 .default_value(false)
                 .implicit_value(true);
+
+        args->add_argument("-c", "--check")
+                .help("Use this to check the hash sum")
+                .nargs(1);
     }
 
-    void getHashType() {
+    std::string getHashType() {
+        std::string hashType;
+
         int counter = 0;
+        // Searching for all hash types to see if one was used
         for (auto& htype : HashFactory::HASH_TYPES) {
             if (args->is_used("-" + toLowerCase(htype)) && ++counter) {
                 hashType = htype;
             }
+            if (counter > 1) {
+                // If more than one were used show this error message
+                printErrMessage("You can chose only one hash type each time!", 1);
+            }
         }
 
+        // If no hash sum was indicated them print err message
         if (counter == 0) {
             printErrMessage("Must specify the type of hash sum!");
-        } else if (counter > 1) {
-            printErrMessage("You can chose only one hash type each time!");
-        } else {
-            // DO NOTHING!
         }
+
+        return hashType;
     }
 
-    void parseArguments() {
+    void parseArguments(const int& argc, const char* const*& argv) {
         try {
-            args->parse_args(commandArgs.argc, commandArgs.argv);
+            args->parse_args(argc, argv);
         } catch (const std::runtime_error &err) {
             const auto arguments = *( args );
 
-            std::cerr << err.what()
-                      << std::endl
-                      << arguments
-                      << std::endl;
+            std::cerr << err.what() << std::endl
+                      << arguments << std::endl;
 
             std::exit(1);
         }
     }
 
-    void getAndRegisterInputFiles() {
+    void getAndRegisterInputFiles(std::string hashType) {
         try {
             const auto files = args->get<std::vector<std::string>>("files");
             for (auto& file : files) {
-                checker->add(this->fileFactory.create(file), hashType);
+                checker->add(fileFactory.create(file), hashType);
             }
         } catch (const std::logic_error &err) {
             printErrMessage("No files were provided");
@@ -471,15 +478,11 @@ class App {
     }
 
     public:
-        App(std::string name, int& argc, char**& argv)
-        : name(name), args(std::make_unique<ArgumentParser>(name, VERSION)),
-          commandArgs(CommandArguments{.argc = argc, .argv = argv}) {
-            // ---- space ----
+        App(std::string name, std::string ver)
+        : name(name), version(ver), args(std::make_unique<ArgumentParser>(name, ver)),
+          checker(std::make_unique<Checker>())
+        {
             this->setupArgparser();
-            this->parseArguments();
-            const bool showProgressBar = args->get<bool>("--progress");
-            const bool showInvalidFiles = !args->get<bool>("--hide-invalid");
-            checker = std::make_unique<Checker>(showProgressBar, showInvalidFiles);
         }
 
         void printErrMessage(const std::string& message, const int errNum = 1) {
@@ -491,9 +494,11 @@ class App {
             std::exit(errNum);
         }
 
-        int run() {
-            getHashType();
-            getAndRegisterInputFiles();
+        int run(const int& argc, const char* const*& argv) {
+            this->parseArguments(argc, argv);
+            this->getAndRegisterInputFiles(this->getHashType());
+            checker->setShowProgressBar(args->get<bool>("--progress"));
+            checker->setShowInvalidFiles(!args->get<bool>("--hide-invalid"));
             checker->calculateHashSums();
             checker->displayResults();
             return 0;
