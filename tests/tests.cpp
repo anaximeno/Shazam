@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "./include/tinytest.hpp"
-#include "../include/shazam.hpp"
+#include "../include/shazam/shazam.hh"
 
 
 #define VALID_FILE_S_PATH       ".testfile.donotchange.txt"

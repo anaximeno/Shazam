@@ -1,4 +1,4 @@
-#include "include/shazam.hpp"
+#include "include/shazam/shazam.hh"
 
 #define VERSION "Shazam 1.2"
 

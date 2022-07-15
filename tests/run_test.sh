@@ -5,6 +5,7 @@ TESTFILE=tests.cpp
 CPP_VERSION=c++17
 RUNNING_ARGS=""
 OUTPUT_FILE=.test_result.shazam.tmp
+COMPIL_ARGS="../src/shazam.cc ../include/external/hashlib2plus/*.cpp"
 
 # The log of the test will be stored on the file bellow
 # and can be reviwed using the cat command.
@@ -17,7 +18,7 @@ PRINT_ERR() {
 }
 
 COMPILE() {
-    $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE
+    $COMPILER -std=$CPP_VERSION $TESTFILE -o $OUTPUT_FILE $COMPIL_ARGS
 }
 
 RUN_TEST() {
