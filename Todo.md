@@ -5,7 +5,7 @@
 * [ ] **-c --check** (used to check the hash sum of one file directly or inside a .txt file, e.g., "sha1sum.txt")
 
 ### Release:
-* [ ] add version
+* [x] add version
 * [ ] create automatic tests
 * [ ] create installer
     - [ ] source build
