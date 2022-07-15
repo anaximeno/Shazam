@@ -67,8 +67,8 @@ namespace shazam {
 
     class ProgressObserver {
     private:
-        int activeObservables;
         const int progressWidth;
+        int activeObservables;
         std::unique_ptr<pgs::ProgressBar> progressBar;
 
     public:

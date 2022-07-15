@@ -1,10 +1,10 @@
 .DEFAULT := main
 
-.PHONY: main release clean test
+.PHONY: main clean test
 
 CC = g++
 
-FLAGS = -std=c++17 -fPIC -Wall -g
+FLAGS = -std=c++17 -fPIC -g -Wextra
 
 HLIB_FILES = include/external/hashlib2plus/hl_md5.cpp \
             include/external/hashlib2plus/hl_md5wrapper.cpp \
@@ -40,8 +40,14 @@ shazam.o: src/shazam.cc
 $(HLIB_OBJS): $(HLIB_FILES)
 	$(CC) -c $(FLAGS) $^
 
-release: main.cpp
-	$(CC) -o main main.cpp $(FLAGS) -O3 -finline-functions
+test:  shazam.o $(HLIB_OBJS)
+	@echo
+	@echo -n "Compiling the test... "
+	@$(CC) -o test $(FLAGS) tests.cpp $^
+	@echo Done.
+	@echo
+	@echo -n "Running test... "
+	@./test
 
 clean:
-	rm shazam *.o
+	rm test shazam *.o

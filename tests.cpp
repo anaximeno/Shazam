@@ -1,8 +1,9 @@
 #include <iostream>
 #include <memory>
+#include <string>
 
-#include "./include/tinytest.hpp"
-#include "../include/shazam/shazam.hh"
+#include "include/external/tinytest/tinytest.h"
+#include "include/shazam/shazam.hh"
 
 
 #define VALID_FILE_S_PATH       ".testfile.donotchange.txt"
@@ -67,7 +68,7 @@ void test_md5sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("MD5", ffactory.create(VALID_FILE_S_PATH));
-    const string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing MD5 hash sum", VALID_FILE_S_MD5SUM == CALCULATED);
 }
@@ -77,7 +78,7 @@ void test_sha1sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH));
-    const string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA1 hash sum", VALID_FILE_S_SHA1SUM == CALCULATED);
 }
@@ -87,7 +88,7 @@ void test_sha256sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA256", ffactory.create(VALID_FILE_S_PATH));
-    const string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA256 hash sum", VALID_FILE_S_SHA256SUM == CALCULATED);
 }
@@ -97,7 +98,7 @@ void test_sha384sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA384", ffactory.create(VALID_FILE_S_PATH));
-    const string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA384 hash sum", VALID_FILE_S_SHA384SUM == CALCULATED);
 }
@@ -107,7 +108,7 @@ void test_sha512sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA512", ffactory.create(VALID_FILE_S_PATH));
-    const string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->getStringHashSum();
 
     ASSERT("Testing SHA512 hash sum", VALID_FILE_S_SHA512SUM == CALCULATED);
 }
@@ -133,7 +134,7 @@ void test_file_size() {
 // -------------- Hexa to Int converter ------------------------------------------------
 
 void test_hexa_to_int_converter() {
-    const string HEXA = "beaf"; // :-´)
+    const std::string HEXA = "beaf"; // :-´)
     const int RESULT = 48815;
     ASSERT("Testing Hexa to Int Converter", shazam::hexaToInt(HEXA) == RESULT);
 }
@@ -144,8 +145,8 @@ void test_hexa_to_int_converter() {
 // -------------- Upper and Lower case converters ---------------------------------------
 
 void test_upper_case_converter() {
-    string lower_case_sentence = "oke dokie";
-    string upper_case_sentence = "OKE DOKIE";
+    std::string lower_case_sentence = "oke dokie";
+    std::string upper_case_sentence = "OKE DOKIE";
 
     ASSERT("Uppercase converter",
         shazam::toUpperCase(lower_case_sentence) == upper_case_sentence
@@ -153,8 +154,8 @@ void test_upper_case_converter() {
 }
 
 void test_lower_case_converter() {
-    string lower_case_sentence = "oke dokie";
-    string upper_case_sentence = "OKE DOKIE";
+    std::string lower_case_sentence = "oke dokie";
+    std::string upper_case_sentence = "OKE DOKIE";
 
     ASSERT("Lowercase converter",
         shazam::toLowerCase(upper_case_sentence) == lower_case_sentence
@@ -169,7 +170,7 @@ void test_lower_case_converter() {
 void test_checker_on_invalid_files() {
     shazam::Checker checker;
     shazam::FileFactory ffactory;
-    
+
     checker.add(ffactory.create("i_dont_exist.txt"), "SHA1");
 
     ASSERT("Checker.validHashesList should be empty", checker.getValidHashesList().empty());
@@ -179,7 +180,7 @@ void test_checker_on_invalid_files() {
 void test_checker_on_valid_files() {
     shazam::Checker checker;
     shazam::FileFactory ffactory;
-    
+
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
 
     ASSERT("Checker.validHashesList should not be empty", !checker.getValidHashesList().empty());
@@ -216,7 +217,7 @@ void test_checker_hash_sum_calculation() {
 
 
 
-int main(int argc, char** argv) {
+int main(void) {
     // ---- File Factory
     RUN(test_file_factory_non_existent_file);
     RUN(test_file_factory_on_directories);

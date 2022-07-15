@@ -1,3 +1,5 @@
 .vscode
 *.out
-main
+*.o
+shazam
+test

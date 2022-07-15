@@ -43,16 +43,11 @@
 #ifndef _TINYTEST_INCLUDED
 #define _TINYTEST_INCLUDED
 
-#include <cstdio>
-#include <cstdlib>
-
-
-// Added by Anaximeno Brito
-#include <iostream>
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
 
 /* Main assertion method */
-#define ASSERT(msg, expression) if (!tt_assert(__FILE__, __LINE__, (msg), (#expression), (expression) ? 1 : 0)) return
+#define ASSERT(msg, expression) if (!tt_assert(__FILE__, __LINE__, (msg), (#expression), (expression) ? 1 : 0)) return 
 
 /* Convenient assertion methods */
 /* TODO: Generate readable error messages for assert_equals or assert_str_equals */
