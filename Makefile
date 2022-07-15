@@ -29,19 +29,28 @@ HLIB_OBJS = hl_md5.o \
 			hl_wrapperfactory.o
 
 shazam: main.o shazam.o $(HLIB_OBJS)
-	$(CC) -o $@ $(FLAGS) $^
+	@echo -n "Compiling shazam... "
+	@$(CC) -o $@ $(FLAGS) $^
+	@echo Done.
+	@echo
+	@echo Run it using ./shazam
 
 main.o: main.cpp
-	$(CC) -c $(FLAGS) $^
+	@echo -n "Compiling main.cpp... "
+	@$(CC) -c $(FLAGS) $^
+	@echo Done.
 
 shazam.o: src/shazam.cc
-	$(CC) -c $(FLAGS) $^
+	@echo -n "Compiling lib shazam... "
+	@$(CC) -c $(FLAGS) $^
+	@echo Done.
 
 $(HLIB_OBJS): $(HLIB_FILES)
-	$(CC) -c $(FLAGS) $^
+	@echo -n "Compiling lib hashlib2plus... "
+	@$(CC) -c $(FLAGS) $^
+	@echo Done.
 
 test:  shazam.o $(HLIB_OBJS)
-	@echo
 	@echo -n "Compiling the test... "
 	@$(CC) -o test $(FLAGS) tests.cpp $^
 	@echo Done.
@@ -50,4 +59,6 @@ test:  shazam.o $(HLIB_OBJS)
 	@./test
 
 clean:
-	rm test shazam *.o
+	@echo -n "Cleaning... "
+	@rm test  *.o
+	@echo Done.
