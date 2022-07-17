@@ -123,23 +123,39 @@ namespace shazam {
         std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file);
     };
 
+    struct HashInfo {
+        std::string hex_hash;
+        std::string file;
+    };
 
-    class Checker {
+    class Parser {
+        const std::string filepath;
+    public:
+        Parser(std::string filepath)
+        : filepath(filepath) {}
+
+        std::list<std::unique_ptr<HashInfo>> parse();
+    };
+
+
+    class HashCalculator {
         bool showProgressBar;
         bool showInvalidFiles;
         const std::shared_ptr<ProgressObserver> progress;
         std::list<std::shared_ptr<Hash>> validFilesHashes;
         std::list<std::shared_ptr<File>> invalidFilesList;
         HashFactory hashFactory;
+        std::string checkFile;
 
     public:
-        Checker(bool showProgressBar, bool showInvalidFiles)
+        HashCalculator(bool showProgressBar, bool showInvalidFiles)
         : showProgressBar(showProgressBar), showInvalidFiles(showInvalidFiles),
         progress(std::make_shared<ProgressObserver>(40)) {  }
-        Checker(): Checker(false, true) {  }
+        HashCalculator(): HashCalculator(false, true) {  }
         std::list<std::shared_ptr<Hash>> getValidHashesList();
         std::list<std::shared_ptr<File>> getInvalidFilesList();
         void add(std::shared_ptr<File> file, std::string hashtype);
+        void addCheckFile(std::string checkFile);
         void calculateHashSums();
         void setShowProgressBar(bool value);
         void setShowInvalidFiles(bool value);
@@ -150,18 +166,17 @@ namespace shazam {
         void displayInvalidFiles();
     };
 
-
     class App {
         const std::string name;
         const std::string version;
         std::unique_ptr<ap::ArgumentParser> args;
-        std::unique_ptr<Checker> checker;
+        std::unique_ptr<HashCalculator> checker;
         FileFactory fileFactory;
 
     public:
         App(std::string name, std::string ver)
         : name(name), version(ver), args(std::make_unique<ap::ArgumentParser>(name, ver)),
-        checker(std::make_unique<Checker>()) {
+        checker(std::make_unique<HashCalculator>()) {
             this->setupArgparser();
         }
 

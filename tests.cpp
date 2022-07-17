@@ -165,41 +165,41 @@ void test_lower_case_converter() {
 // -------------- END Upper and Lower case converters ------------------------------------
 
 
-// -------------- Testing Checker --------------------------------------------------------
+// -------------- Testing HashCalculator --------------------------------------------------------
 
 void test_checker_on_invalid_files() {
-    shazam::Checker checker;
+    shazam::HashCalculator checker;
     shazam::FileFactory ffactory;
 
     checker.add(ffactory.create("i_dont_exist.txt"), "SHA1");
 
-    ASSERT("Checker.validHashesList should be empty", checker.getValidHashesList().empty());
-    ASSERT("Checker.invalidFilesList should not be empty", !checker.getInvalidFilesList().empty());
+    ASSERT("HashCalculator.validHashesList should be empty", checker.getValidHashesList().empty());
+    ASSERT("HashCalculator.invalidFilesList should not be empty", !checker.getInvalidFilesList().empty());
 }
 
 void test_checker_on_valid_files() {
-    shazam::Checker checker;
+    shazam::HashCalculator checker;
     shazam::FileFactory ffactory;
 
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
 
-    ASSERT("Checker.validHashesList should not be empty", !checker.getValidHashesList().empty());
-    ASSERT("Checker.invalidFilesList should be empty", checker.getInvalidFilesList().empty());
+    ASSERT("HashCalculator.validHashesList should not be empty", !checker.getValidHashesList().empty());
+    ASSERT("HashCalculator.invalidFilesList should be empty", checker.getInvalidFilesList().empty());
 }
 
 void test_checker_on_valid_and_invalid_files() {
-    shazam::Checker checker;
+    shazam::HashCalculator checker;
     shazam::FileFactory ffactory;
 
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
     checker.add(ffactory.create("i_dont_exist.txt"), "SHA1");
 
-    ASSERT("Checker.validHashesList should not be empty", !checker.getValidHashesList().empty());
-    ASSERT("Checker.invalidFilesList should not be empty", !checker.getInvalidFilesList().empty());
+    ASSERT("HashCalculator.validHashesList should not be empty", !checker.getValidHashesList().empty());
+    ASSERT("HashCalculator.invalidFilesList should not be empty", !checker.getInvalidFilesList().empty());
 }
 
 void test_checker_hash_sum_calculation() {
-    shazam::Checker checker;
+    shazam::HashCalculator checker;
     shazam::FileFactory ffactory;
 
     checker.add(ffactory.create(VALID_FILE_S_PATH), "SHA1");
@@ -209,11 +209,11 @@ void test_checker_hash_sum_calculation() {
 
     const auto sha256 = list.front();
     const auto sha1 = list.back();
-    ASSERT("Testing Checker sha1sum result", sha1->getStringHashSum() == VALID_FILE_S_SHA1SUM);
-    ASSERT("Testing Checker sha256sum result", sha256->getStringHashSum() == VALID_FILE_S_SHA256SUM);
+    ASSERT("Testing HashCalculator sha1sum result", sha1->getStringHashSum() == VALID_FILE_S_SHA1SUM);
+    ASSERT("Testing HashCalculator sha256sum result", sha256->getStringHashSum() == VALID_FILE_S_SHA256SUM);
 }
 
-// -------------- END Testing Checker ----------------------------------------------------
+// -------------- END Testing HashCalculator ----------------------------------------------------
 
 
 
@@ -240,7 +240,7 @@ int main(void) {
     RUN(test_upper_case_converter);
     RUN(test_lower_case_converter);
 
-    // ---- Checker
+    // ---- HashCalculator
     RUN(test_checker_on_invalid_files);
     RUN(test_checker_on_valid_files);
     RUN(test_checker_on_valid_and_invalid_files);

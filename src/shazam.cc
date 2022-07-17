@@ -215,7 +215,35 @@ std::shared_ptr<shazam::Hash> shazam::HashFactory::hashFile(std::string hashtype
     return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
 }
 
-void shazam::Checker::displayValidHashes() {
+std::list<std::unique_ptr<shazam::HashInfo>> shazam::Parser::parse() {
+    std::list<std::unique_ptr<shazam::HashInfo>> hashes;
+
+    std::fstream file(filepath, std::ios::in);
+
+    std::string line;
+
+    if (!file.is_open()) {
+        // Print err the exit
+        shazam::printErrMessage("Could not open the file '" + filepath + "'");
+    }
+
+    while (std::getline(file, line)) {
+        std::unique_ptr<shazam::HashInfo> hashi = std::make_unique<shazam::HashInfo>();
+        // TODO: Validade the values below
+        hashi->hex_hash = line.substr(0, line.find(" "));
+        hashi->file = line.substr(line.find(" "), line.size());
+        hashes.push_back(std::move(hashi));
+    }
+
+    file.close();
+    return hashes;
+}
+
+void shazam::HashCalculator::addCheckFile(std::string file) {
+    checkFile = file;
+}
+
+void shazam::HashCalculator::displayValidHashes() {
     if (!validFilesHashes.empty()) {
         for (auto& hash : validFilesHashes) {
             std::cout << hash->getStringHashSum() << " ";
@@ -224,7 +252,7 @@ void shazam::Checker::displayValidHashes() {
     }
 }
 
-void shazam::Checker::displayInvalidFiles() {
+void shazam::HashCalculator::displayInvalidFiles() {
     if (!invalidFilesList.empty() && showInvalidFiles) {
         std::cout << std::endl << "Invalid Files:\n";
 
@@ -237,7 +265,7 @@ void shazam::Checker::displayInvalidFiles() {
     }
 }
 
-void shazam::Checker::add(std::shared_ptr<shazam::File> file, std::string hashtype) {
+void shazam::HashCalculator::add(std::shared_ptr<shazam::File> file, std::string hashtype) {
     if (file->isValid()) {
         auto hash = hashFactory.hashFile(hashtype, file);
         hash->registerObserver(progress);
@@ -247,7 +275,7 @@ void shazam::Checker::add(std::shared_ptr<shazam::File> file, std::string hashty
     }
 }
 
-void shazam::Checker::calculateHashSums() {
+void shazam::HashCalculator::calculateHashSums() {
     if (showProgressBar) {
         // add observer for the init operation
         progress->increaseObervableCounter();
@@ -267,15 +295,15 @@ void shazam::Checker::calculateHashSums() {
     );
 }
 
-void shazam::Checker::setShowProgressBar(bool value) {
+void shazam::HashCalculator::setShowProgressBar(bool value) {
     showProgressBar = value;
 }
 
-void shazam::Checker::setShowInvalidFiles(bool value) {
+void shazam::HashCalculator::setShowInvalidFiles(bool value) {
     showInvalidFiles = value;
 }
 
-void shazam::Checker::displayResults() {
+void shazam::HashCalculator::displayResults() {
     if (showProgressBar) {
         progress->done();
     }
@@ -283,10 +311,10 @@ void shazam::Checker::displayResults() {
     displayInvalidFiles();
 }
 
-std::list<std::shared_ptr<shazam::Hash>> shazam::Checker::getValidHashesList() {
+std::list<std::shared_ptr<shazam::Hash>> shazam::HashCalculator::getValidHashesList() {
     return validFilesHashes;
 }
-std::list<std::shared_ptr<shazam::File>> shazam::Checker::getInvalidFilesList() {
+std::list<std::shared_ptr<shazam::File>> shazam::HashCalculator::getInvalidFilesList() {
     return invalidFilesList;
 }
 
