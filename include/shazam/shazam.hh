@@ -130,22 +130,25 @@ namespace shazam {
 
     class Parser {
         const std::string filepath;
+        std::list<std::unique_ptr<HashInfo>> hashes;
     public:
         Parser(std::string filepath)
         : filepath(filepath) {}
-
-        std::list<std::unique_ptr<HashInfo>> parse();
+        std::list<std::unique_ptr<HashInfo>> getHashes();
+        void parse();
     };
 
 
     class HashCalculator {
+    private:
         bool showProgressBar;
         bool showInvalidFiles;
+
+    protected:
         const std::shared_ptr<ProgressObserver> progress;
         std::list<std::shared_ptr<Hash>> validFilesHashes;
         std::list<std::shared_ptr<File>> invalidFilesList;
         HashFactory hashFactory;
-        std::string checkFile;
 
     public:
         HashCalculator(bool showProgressBar, bool showInvalidFiles)
@@ -155,15 +158,28 @@ namespace shazam {
         std::list<std::shared_ptr<Hash>> getValidHashesList();
         std::list<std::shared_ptr<File>> getInvalidFilesList();
         void add(std::shared_ptr<File> file, std::string hashtype);
-        void addCheckFile(std::string checkFile);
         void calculateHashSums();
         void setShowProgressBar(bool value);
         void setShowInvalidFiles(bool value);
         void displayResults();
 
-    private:
-        void displayValidHashes();
+    protected:
+        virtual void displayValidFiles();
         void displayInvalidFiles();
+    };
+
+    class Checker : public HashCalculator {
+        const std::string checkFile;
+        const std::unique_ptr<Parser> parser;
+
+    public:
+        Checker(std::string checkFile, bool showProgressBar, bool showInvalidFiles)
+        : HashCalculator(showProgressBar, showInvalidFiles), checkFile(checkFile),
+        parser(std::make_unique<Parser>(checkFile)) {}
+        const std::string getCheckFile() const;
+
+    protected:
+        void displayValidFiles() override;
     };
 
     class App {

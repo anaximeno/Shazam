@@ -215,9 +215,7 @@ std::shared_ptr<shazam::Hash> shazam::HashFactory::hashFile(std::string hashtype
     return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
 }
 
-std::list<std::unique_ptr<shazam::HashInfo>> shazam::Parser::parse() {
-    std::list<std::unique_ptr<shazam::HashInfo>> hashes;
-
+void shazam::Parser::parse() {
     std::fstream file(filepath, std::ios::in);
 
     std::string line;
@@ -236,14 +234,13 @@ std::list<std::unique_ptr<shazam::HashInfo>> shazam::Parser::parse() {
     }
 
     file.close();
+}
+
+std::list<std::unique_ptr<shazam::HashInfo>> shazam::Parser::getHashes() {
     return hashes;
 }
 
-void shazam::HashCalculator::addCheckFile(std::string file) {
-    checkFile = file;
-}
-
-void shazam::HashCalculator::displayValidHashes() {
+void shazam::HashCalculator::displayValidFiles() {
     if (!validFilesHashes.empty()) {
         for (auto& hash : validFilesHashes) {
             std::cout << hash->getStringHashSum() << " ";
@@ -307,7 +304,7 @@ void shazam::HashCalculator::displayResults() {
     if (showProgressBar) {
         progress->done();
     }
-    displayValidHashes();
+    displayValidFiles();
     displayInvalidFiles();
 }
 
@@ -318,6 +315,16 @@ std::list<std::shared_ptr<shazam::File>> shazam::HashCalculator::getInvalidFiles
     return invalidFilesList;
 }
 
+const std::string shazam::Checker::getCheckFile() const {
+    return checkFile;
+}
+
+void shazam::Checker::displayValidFiles() {
+    parser->parse();
+
+    for (const auto& hashi : parser->getHashes()) {
+    }
+}
 
 void shazam::App::setupArgparser() {
     args->add_argument("files")
