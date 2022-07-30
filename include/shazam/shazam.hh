@@ -3,16 +3,16 @@
 
 #include "./basic-types.hh"
 
+#include "../external/argparse.hpp"
+#include "../external/ProgressBar.hpp"
+#include "../external/hashlib2plus/hl_hashwrapper.h"
+#include "../external/hashlib2plus/hl_wrapperfactory.h"
+
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <cassert>
 #include <memory>
-
-#include "../external/argparse.hpp"
-#include "../external/ProgressBar.hpp"
-#include "../external/hashlib2plus/hl_hashwrapper.h"
-#include "../external/hashlib2plus/hl_wrapperfactory.h"
 
 namespace fs = std::filesystem;
 namespace pgs = progresscpp;
@@ -21,14 +21,6 @@ namespace ap = argparse;
 
 namespace shazam {
     std::string explainFileStatus(const EFileStatus status);
-
-    int hexaToInt(std::string hexadecimalString);
-
-    std::string toUpperCase(std::string str);
-
-    std::string toLowerCase(std::string str);
-
-    void printErrMessage(const std::string& message);
 
     class File {
         const EFileStatus _status;

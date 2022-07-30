@@ -2,8 +2,10 @@
 #include <memory>
 #include <string>
 
-#include "include/external/tinytest/tinytest.h"
-#include "include/shazam/shazam.hh"
+#include "./include/external/tinytest/tinytest.h"
+
+#include "./include/shazam/shazam.hh"
+#include "./include/shazam/common.hh"
 
 
 #define VALID_FILE_S_PATH       ".testfile.donotchange.txt"

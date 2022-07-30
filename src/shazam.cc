@@ -1,5 +1,6 @@
 #include "../include/shazam/shazam.hh"
 #include "../include/shazam/basic-types.hh"
+#include "../include/shazam/common.hh"
 
 #include "../include/external/argparse.hpp"
 #include "../include/external/ProgressBar.hpp"
@@ -46,20 +47,6 @@ std::string shazam::explainFileStatus(const shazam::EFileStatus status) {
     }
 
     return resonForStatus;
-}
-
-int shazam::hexaToInt(std::string hexadecimalString) {
-    return std::stoi(hexadecimalString, 0, 16);
-}
-
-std::string shazam::toUpperCase(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-    return str;
-}
-
-std::string shazam::toLowerCase(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-    return str;
 }
 
 std::string shazam::File::path() const {
