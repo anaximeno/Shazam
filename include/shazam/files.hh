@@ -1,6 +1,13 @@
 #ifndef _SHAZAM_FILES_HEADER
 #define _SHAZAM_FILES_HEADER
 
+#include "./basic-types.hh"
+
+#include <string>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace shazam {
     /* Represents as file in the program. */
     class File {

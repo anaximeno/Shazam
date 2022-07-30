@@ -5,6 +5,8 @@
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <filesystem>
+#include <fstream>
 
 std::string shazam::File::path() const
 {
@@ -28,7 +30,7 @@ int shazam::File::size()
 
 std::string shazam::File::explainStatus() const
 {
-    switch (status()) {
+    switch (this->status()) {
         case NON_EXISTENT:
             return "Was not found.";
         case IS_DIRECTORY:

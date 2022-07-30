@@ -10,12 +10,9 @@
 #include "../external/hashlib2plus/hl_wrapperfactory.h"
 
 #include <iostream>
-#include <fstream>
-#include <filesystem>
 #include <cassert>
 #include <memory>
 
-namespace fs = std::filesystem;
 namespace pgs = progresscpp;
 namespace ap = argparse;
 

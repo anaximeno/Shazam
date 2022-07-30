@@ -29,10 +29,12 @@ HLIB_OBJS = hl_md5.o \
 			hl_wrapperfactory.o
 
 SHAZAM_FILES = src/shazam.cc \
-			   src/common.cc
+			   src/common.cc \
+			   src/files.cc
 
 SHAZAM_OBJS = shazam.o \
-			  common.o
+			  common.o \
+			  files.o
 
 shazam: main.o $(SHAZAM_OBJS) $(HLIB_OBJS)
 	@echo -n "Compiling shazam... "

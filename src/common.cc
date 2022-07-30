@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <iostream>
 
 int shazam::hexaToInt(std::string hexadecimalString)
 {
