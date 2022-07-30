@@ -228,7 +228,7 @@ void test_hash_comparator_match()
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto currentHashSum = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH))->get();
+    const auto hash = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH));
 
     const auto originalHashSum = shazam::HashSum {
         .filename=VALID_FILE_S_PATH,
@@ -236,7 +236,7 @@ void test_hash_comparator_match()
         .hashSum=NOT_MATCH_TEST_SHA1SUM
     };
 
-    shazam::ComparationResult result = shazam::compareHashes(originalHashSum, currentHashSum).result;
+    shazam::ComparationResult result = hash->compareHashes(originalHashSum).result;
 
     ASSERT("Testing Hash Comparator", result == shazam::NOT_MATCH);
 }
@@ -246,7 +246,7 @@ void test_hash_comparator_not_match()
     shazam::HashFactory hfactory;
     shazam::FileFactory ffactory;
 
-    const auto currentHashSum = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH))->get();
+    const auto hash = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH));
 
     const auto originalHashSum = shazam::HashSum {
         .filename=VALID_FILE_S_PATH,
@@ -254,7 +254,7 @@ void test_hash_comparator_not_match()
         .hashSum=VALID_FILE_S_SHA1SUM
     };
 
-    shazam::ComparationResult result = shazam::compareHashes(originalHashSum, currentHashSum).result;
+    shazam::ComparationResult result = hash->compareHashes(originalHashSum).result;
 
     ASSERT("Testing Hash Comparator", result == shazam::MATCH);
 }

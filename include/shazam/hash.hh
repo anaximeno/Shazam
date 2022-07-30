@@ -35,13 +35,14 @@ namespace shazam {
         /* Returns the path of the file being used. */
         std::string getFilePath(void);
 
+        /* Compares the hashes and returns the result. */
+        FileHashSumComparationResult compareHashes(HashSum originalHashSum);
+
     private:
         /* Makes the calculation of the hash sum and returns the result. */
         std::string calculateHashSum(void);
     };
 
-    /* Compares the hashes and returns the result. */
-    FileHashSumComparationResult compareHashes(HashSum originalHashSum, HashSum currentHashSum);
 
     class HashFactory: protected wrapperfactory {
     public:

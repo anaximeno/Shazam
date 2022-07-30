@@ -56,9 +56,10 @@ shazam::ComparationResult makeComparation(std::string original, std::string curr
     return original != current ? shazam::NOT_MATCH : shazam::MATCH;
 }
 
-shazam::FileHashSumComparationResult shazam::compareHashes(
-    const HashSum originalHashSum, const HashSum currentHashSum)
+shazam::FileHashSumComparationResult shazam::HashCalculator::compareHashes(
+    const HashSum originalHashSum)
 {
+    const HashSum currentHashSum = get();
     const std::string original = originalHashSum.hashSum;
     const std::string current = currentHashSum.hashSum;
     const ComparationResult result = makeComparation(original, current);
