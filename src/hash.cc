@@ -18,12 +18,8 @@ void shazam::Hash::notify(void)
 
 void shazam::Hash::calculate(void)
 {
-    if (!hexHashSum.wasCalculated) {
-        hexHashSum.value = calculateHashSum();
-        hexHashSum.wasCalculated = true;
-    } else {
-        // Do Nothing!
-    }
+    if (hashSum == "")
+        hashSum = calculateHashSum();
 }
 
 std::string shazam::Hash::type(void)
@@ -33,10 +29,10 @@ std::string shazam::Hash::type(void)
 
 std::string shazam::Hash::getStringHashSum(void)
 {
-    if (!hexHashSum.wasCalculated)
+    if (hashSum == "")
         calculate();
-
-    return hexHashSum.value;
+    // TODO: update to return the HashSum struct
+    return hashSum;
 }
 
 std::string shazam::Hash::getFilePath(void)

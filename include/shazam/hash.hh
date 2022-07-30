@@ -13,24 +13,15 @@
 namespace shazam {
     /* Calcultes the hash sum. */
     class Hash {
-        // stores hash sum in different formats
-        template <class T> struct SHashSum {
-            bool wasCalculated;
-            T value;
-        };
-
-        // SHashSum<int> intHashsum{false, 0};
-        SHashSum<std::string> hexHashSum{false, ""};
         const std::string hashName;
         const std::shared_ptr<File> file;
         const std::unique_ptr<hashwrapper> hasher;
         std::shared_ptr<ProgressObserver> observer;
+        std::string hashSum = "";
 
     public:
         Hash(std::string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr)
-        : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {
-            //
-        }
+        : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {}
 
         void registerObserver(std::shared_ptr<ProgressObserver> obs);
         void notify(void);
