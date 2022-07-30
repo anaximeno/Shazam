@@ -71,3 +71,15 @@ int shazam::ProgressObserver::getObservablesNumber()
 {
     return activeObservables;
 }
+
+void shazam::IAmObservable::setObserver(std::shared_ptr<ProgressObserver> observer)
+{
+    this->observer = observer;
+    this->observer->increaseObervableCounter();
+}
+
+void shazam::IAmObservable::notifyObserver()
+{
+    if (observer != nullptr)
+        observer->update();
+}

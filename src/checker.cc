@@ -35,7 +35,7 @@ void shazam::Checker::add(std::shared_ptr<shazam::File> file, std::string hashty
 {
     if (file->isValid()) {
         auto hash = hashFactory.hashFile(hashtype, file);
-        hash->registerObserver(progress);
+        hash->setObserver(progress);
         validFilesHashes.push_front(hash);
     } else
         invalidFilesList.push_front(file);
@@ -55,9 +55,9 @@ void shazam::Checker::calculateHashSums()
     std::for_each(
         validFilesHashes.begin(),
         validFilesHashes.end(),
-        [](std::shared_ptr<Hash>& hash) {
+        [](std::shared_ptr<HashCalculator>& hash) {
             hash->calculate();
-            hash->notify();
+            hash->notifyObserver();
         }
     );
 }
@@ -81,7 +81,7 @@ void shazam::Checker::displayResults()
     displayInvalidFiles();
 }
 
-std::list<std::shared_ptr<shazam::Hash>> shazam::Checker::getValidHashesList()
+std::list<std::shared_ptr<shazam::HashCalculator>> shazam::Checker::getValidHashesList()
 {
     return validFilesHashes;
 }

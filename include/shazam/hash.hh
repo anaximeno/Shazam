@@ -12,31 +12,37 @@
 
 namespace shazam {
     /* Calcultes the hash sum. */
-    class Hash {
+    class HashCalculator: public IAmObservable {
         const std::string hashName;
         const std::shared_ptr<File> file;
         const std::unique_ptr<hashwrapper> hasher;
-        std::shared_ptr<ProgressObserver> observer;
         std::string hashSum = "";
 
     public:
-        Hash(std::string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr)
+        HashCalculator(std::string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr)
         : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {}
 
-        void registerObserver(std::shared_ptr<ProgressObserver> obs);
-        void notify(void);
+        /* Calculates the hash sum. */
         void calculate(void);
+
+        /* Returns the type of hash sum being calculated. */
         std::string type(void);
+
+        /* Returns the calculated hash sum. */
         std::string getStringHashSum(void);
+
+        /* Returns the path of the file being used. */
         std::string getFilePath(void);
 
     private:
+        /* Makes the calculation of the hash sum and returns the result. */
         std::string calculateHashSum(void);
     };
 
     class HashFactory: protected wrapperfactory {
     public:
-        std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file);
+        /* Creates an hash calculator class for the given file, depending on the given hash type. */
+        std::shared_ptr<HashCalculator> hashFile(std::string hashtype, std::shared_ptr<File> file);
     };
 };
 

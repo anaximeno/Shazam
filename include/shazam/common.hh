@@ -57,6 +57,16 @@ namespace shazam {
         /* Decreases the number of observables tasks. */
         void decreaseObervableCounter();
     };
+
+    class IAmObservable {
+        std::shared_ptr<ProgressObserver> observer;
+    public:
+        /* Sets the observer for this observable class. */
+        virtual void setObserver(std::shared_ptr<ProgressObserver> observer);
+
+        /* Notifies the observer about a change on the state. */
+        virtual void notifyObserver(void);
+    };
 };
 
 #endif /* _SHAZAM_COMMON_HEADER */

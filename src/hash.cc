@@ -5,29 +5,18 @@
 #include <string>
 #include <memory>
 
-void shazam::Hash::registerObserver(std::shared_ptr<ProgressObserver> obs)
-{
-    obs->increaseObervableCounter();
-    observer = obs;
-}
-
-void shazam::Hash::notify(void)
-{
-    observer->update();
-}
-
-void shazam::Hash::calculate(void)
+void shazam::HashCalculator::calculate(void)
 {
     if (hashSum == "")
         hashSum = calculateHashSum();
 }
 
-std::string shazam::Hash::type(void)
+std::string shazam::HashCalculator::type(void)
 {
     return hashName;
 }
 
-std::string shazam::Hash::getStringHashSum(void)
+std::string shazam::HashCalculator::getStringHashSum(void)
 {
     if (hashSum == "")
         calculate();
@@ -35,19 +24,19 @@ std::string shazam::Hash::getStringHashSum(void)
     return hashSum;
 }
 
-std::string shazam::Hash::getFilePath(void)
+std::string shazam::HashCalculator::getFilePath(void)
 {
     return file->path();
 }
 
-std::string shazam::Hash::calculateHashSum(void)
+std::string shazam::HashCalculator::calculateHashSum(void)
 {
     return hasher->getHashFromFile(file->path());
 }
 
-std::shared_ptr<shazam::Hash>
+std::shared_ptr<shazam::HashCalculator>
 shazam::HashFactory::hashFile(std::string hashtype, std::shared_ptr<shazam::File> file)
 {
     auto wrapper = std::unique_ptr<hashwrapper>(create(hashtype));
-    return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
+    return std::make_shared<HashCalculator>(hashtype, std::move(wrapper), file);
 }

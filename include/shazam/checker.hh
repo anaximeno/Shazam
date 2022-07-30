@@ -15,7 +15,7 @@ namespace shazam {
         bool showProgressBar;
         bool showInvalidFiles;
         const std::shared_ptr<ProgressObserver> progress;
-        std::list<std::shared_ptr<Hash>> validFilesHashes;
+        std::list<std::shared_ptr<HashCalculator>> validFilesHashes;
         std::list<std::shared_ptr<File>> invalidFilesList;
         HashFactory hashFactory;
 
@@ -27,7 +27,7 @@ namespace shazam {
         Checker(): Checker(false, true) {  }
 
         /* Get the list of valid hashed files. */
-        std::list<std::shared_ptr<Hash>> getValidHashesList();
+        std::list<std::shared_ptr<HashCalculator>> getValidHashesList();
 
         /* Get the list of invalid files. */
         std::list<std::shared_ptr<File>> getInvalidFilesList();
