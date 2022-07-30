@@ -8,6 +8,7 @@
 #include "./include/shazam/common.hh"
 #include "./include/shazam/files.hh"
 #include "./include/shazam/hash.hh"
+#include "./include/shazam/checker.hh"
 
 
 #define VALID_FILE_S_PATH       ".testfile.donotchange.txt"
