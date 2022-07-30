@@ -219,6 +219,47 @@ void test_checker_hash_sum_calculation() {
 
 // -------------- END Testing Checker ----------------------------------------------------
 
+// -------------- Testing Hash Comparator --------------------------------------------------------
+
+void test_hash_comparator_match()
+{
+#define NOT_MATCH_TEST_SHA1SUM "2adc14bb34674fab0445df2b4aad00a36cca651d"
+
+    shazam::HashFactory hfactory;
+    shazam::FileFactory ffactory;
+
+    const auto currentHashSum = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH))->get();
+
+    const auto originalHashSum = shazam::HashSum {
+        .filename=VALID_FILE_S_PATH,
+        .hashType="SHA1",
+        .hashSum=NOT_MATCH_TEST_SHA1SUM
+    };
+
+    shazam::HashComparator hcomparator(originalHashSum, currentHashSum);
+
+    ASSERT("Testing Hash Comparator", hcomparator.compareHashes().result == shazam::NOT_MATCH);
+}
+
+void test_hash_comparator_not_match()
+{
+    shazam::HashFactory hfactory;
+    shazam::FileFactory ffactory;
+
+    const auto currentHashSum = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH))->get();
+
+    const auto originalHashSum = shazam::HashSum {
+        .filename=VALID_FILE_S_PATH,
+        .hashType="SHA1",
+        .hashSum=VALID_FILE_S_SHA1SUM
+    };
+
+    shazam::HashComparator hcomparator(originalHashSum, currentHashSum);
+
+    ASSERT("Testing Hash Comparator", hcomparator.compareHashes().result == shazam::MATCH);
+}
+
+// -------------- END Hash Comparator ----------------------------------------------------
 
 
 int main(void) {
@@ -249,6 +290,10 @@ int main(void) {
     RUN(test_checker_on_valid_files);
     RUN(test_checker_on_valid_and_invalid_files);
     RUN(test_checker_hash_sum_calculation);
+
+    // -- Hash Comparator
+    RUN(test_hash_comparator_match);
+    RUN(test_hash_comparator_not_match);
 
     return TEST_REPORT();
 }
