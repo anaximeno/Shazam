@@ -20,3 +20,9 @@ std::string shazam::toLowerCase(std::string str)
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     return str;
 }
+
+void shazam::printErrMessage(const std::string& message)
+{
+    std::cerr << "Shazam: Err: " << message << std::endl;
+    std::exit(1);
+}

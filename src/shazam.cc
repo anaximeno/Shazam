@@ -1,6 +1,7 @@
 #include "../include/shazam/shazam.hh"
 #include "../include/shazam/basic-types.hh"
 #include "../include/shazam/common.hh"
+#include "../include/shazam/files.hh"
 
 #include "../include/external/argparse.hpp"
 #include "../include/external/ProgressBar.hpp"
@@ -16,109 +17,6 @@
 namespace fs = std::filesystem;
 namespace pgs = progresscpp;
 namespace ap = argparse;
-
-void shazam::printErrMessage(const std::string& message) {
-    std::cerr << "Shazam: Err: " << message << std::endl;
-    std::exit(1);
-}
-
-std::string shazam::explainFileStatus(const shazam::EFileStatus status) {
-    std::string resonForStatus;
-
-    switch (status) {
-        case NON_EXISTENT:
-            resonForStatus = "Was not found.";
-            break;
-        case IS_DIRECTORY:
-            resonForStatus = "Its a directory.";
-            break;
-        case NON_PERMISSIVE:
-            resonForStatus = "No permissions to read.";
-            break;
-        case NON_READABLE:
-            resonForStatus = "Could not read!";
-            break;
-        case VALID_FILE:
-            resonForStatus = "File is valid.";
-            break;
-        default:
-            resonForStatus = "Unknown file status!";
-            break;
-    }
-
-    return resonForStatus;
-}
-
-std::string shazam::File::path() const {
-    return _path;
-}
-
-shazam::EFileStatus shazam::File::status() const {
-    return _status;
-}
-
-bool shazam::File::isValid() const {
-    return status() == VALID_FILE;
-}
-
-int shazam::File::size() {
-    return isValid() ? fs::file_size(path()) : 0;
-}
-
-std::string shazam::File::explainStatus() const {
-    return explainFileStatus(status());
-}
-
-bool shazam::FileFactory::fileExists(fs::file_status filestatus) {
-    return fs::exists(filestatus);
-}
-
-bool shazam::FileFactory::fileIsNotDirectory(fs::file_status filestatus) {
-    return !fs::is_directory(filestatus);
-}
-
-bool shazam::FileFactory::fileIsPermissive(fs::file_status filestatus) {
-    return (filestatus.permissions() & fs::perms::owner_read) != fs::perms::none;
-}
-
-bool shazam::FileFactory::fileIsReadable(std::string path) {
-    bool isReadable = false;
-
-    std::fstream f;
-    f.open(path, std::ios::in | std::ios::binary);
-
-    if(f) {
-        char byt;
-        try {
-            f.read(&byt, 1);
-            isReadable = true;
-        } catch(const std::exception& e) {
-            // TODO: do something here!
-        }
-    }
-
-    f.close();
-    return isReadable;
-}
-
-shazam::EFileStatus shazam::FileFactory::fileValidStatus(std::string path) {
-    fs::file_status filestatus = fs::status(path);
-    if (!fileExists(filestatus)) {
-        return NON_EXISTENT;
-    } else if (!fileIsNotDirectory(filestatus)) {
-        return IS_DIRECTORY;
-    } else if (!fileIsPermissive(filestatus)) {
-        return NON_PERMISSIVE;
-    } else if (!fileIsReadable(path)) {
-        return NON_READABLE;
-    } else {
-        return VALID_FILE;
-    }
-}
-
-std::shared_ptr<shazam::File> shazam::FileFactory::create(std::string path) {
-    return std::make_shared<shazam::File>(path, fileValidStatus(path));
-}
 
 void shazam::ProgressObserver::update() {
     activeObservables--;
