@@ -9,9 +9,9 @@
 
 namespace pgs = progresscpp;
 
-int shazam::hexaToInt(std::string hexadecimalString)
+unsigned long long shazam::hexaToInt(std::string hexadecimalString)
 {
-    return std::stoi(hexadecimalString, 0, 16);
+    return std::stoull(hexadecimalString, 0, 16);
 }
 
 std::string shazam::toUpperCase(std::string str)

@@ -10,7 +10,7 @@ namespace pgs = progresscpp;
 
 namespace shazam {
     /* Converts and hexadecimal value to integer. */
-    int hexaToInt(std::string hexadecimalString);
+    unsigned long long hexaToInt(std::string hexadecimalString);
 
     /* Returns the input str as an uppercase output. */
     std::string toUpperCase(std::string str);
