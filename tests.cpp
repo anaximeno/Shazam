@@ -236,9 +236,9 @@ void test_hash_comparator_match()
         .hashSum=NOT_MATCH_TEST_SHA1SUM
     };
 
-    shazam::HashComparator hcomparator(originalHashSum, currentHashSum);
+    shazam::ComparationResult result = shazam::compareHashes(originalHashSum, currentHashSum).result;
 
-    ASSERT("Testing Hash Comparator", hcomparator.compareHashes().result == shazam::NOT_MATCH);
+    ASSERT("Testing Hash Comparator", result == shazam::NOT_MATCH);
 }
 
 void test_hash_comparator_not_match()
@@ -254,9 +254,9 @@ void test_hash_comparator_not_match()
         .hashSum=VALID_FILE_S_SHA1SUM
     };
 
-    shazam::HashComparator hcomparator(originalHashSum, currentHashSum);
+    shazam::ComparationResult result = shazam::compareHashes(originalHashSum, currentHashSum).result;
 
-    ASSERT("Testing Hash Comparator", hcomparator.compareHashes().result == shazam::MATCH);
+    ASSERT("Testing Hash Comparator", result == shazam::MATCH);
 }
 
 // -------------- END Hash Comparator ----------------------------------------------------

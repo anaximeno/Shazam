@@ -47,7 +47,17 @@ shazam::HashFactory::hashFile(std::string hashtype, std::shared_ptr<shazam::File
     return std::make_shared<HashCalculator>(hashtype, std::move(wrapper), file);
 }
 
-shazam::FileHashSumComparationResult shazam::HashComparator::compareHashes()
+shazam::ComparationResult makeComparation(std::string original, std::string current)
+{
+    /* Initially I wanted to convert the values to int, but I didn't make it that way,
+     * because the hexadecimal values are exceeding the maximum bound of value (unsigned long long).
+     * */
+    // TODO: update check algorithm to a more secure one
+    return original != current ? shazam::NOT_MATCH : shazam::MATCH;
+}
+
+shazam::FileHashSumComparationResult shazam::compareHashes(
+    const HashSum originalHashSum, const HashSum currentHashSum)
 {
     const std::string original = originalHashSum.hashSum;
     const std::string current = currentHashSum.hashSum;
@@ -62,15 +72,3 @@ shazam::FileHashSumComparationResult shazam::HashComparator::compareHashes()
     };
 }
 
-shazam::ComparationResult
-shazam::HashComparator::makeComparation(std::string original, std::string current)
-{
-    /* Initially I wanted to convert the values to int, but I didn't make it that way,
-     * because the hexadecimal values are exceeding the maximum bound of value (unsigned long long).
-     * */
-    // TODO: update check algorithm to a more secure one
-    if (original != current)
-        return NOT_MATCH;
-    else
-        return MATCH;
-}
