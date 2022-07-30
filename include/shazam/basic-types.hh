@@ -22,8 +22,17 @@ namespace shazam {
     /* Struct used to store hash sums. */
     struct HashSum {
       const std::string filename;
-      const std::string hashtype;
-      const std::string hashsum;
+      const std::string hashType;
+      const std::string hashSum;
+    };
+
+    /* The result of the hash sum comparation */
+    struct FileHashSumComparationResult {
+        const std::string filename;
+        const std::string hashType;
+        const std::string originalHashSum;
+        const std::string currentHashSum;
+        const ComparationResult result;
     };
 
     /* Constant array with the types of hash sums supported
