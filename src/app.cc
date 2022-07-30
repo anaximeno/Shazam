@@ -1,4 +1,4 @@
-#include "../include/shazam/shazam.hh"
+#include "../include/shazam/app.hh"
 #include "../include/shazam/basic-types.hh"
 #include "../include/shazam/common.hh"
 #include "../include/shazam/files.hh"
@@ -16,8 +16,8 @@
 namespace fs = std::filesystem;
 namespace ap = argparse;
 
-
-void shazam::App::setupArgparser() {
+void shazam::App::setupArgparser()
+{
     args->add_argument("files")
             .help("path of the files to perform hash sums.")
             .remaining();
@@ -40,36 +40,36 @@ void shazam::App::setupArgparser() {
             .default_value(false)
             .implicit_value(true);
 
+    /* TODO: Implement the check sum option
     args->add_argument("-c", "--check")
             .help("Use this to check the hash sum")
             .default_value(false)
             .implicit_value(true);
+    */
 }
 
-std::string shazam::App::getHashType() {
+std::string shazam::App::getHashType()
+{
     std::string hashType;
 
     int counter = 0;
     // Searching for all hash types to see if one was used
     for (auto& htype : HASH_TYPES) {
-        if (args->is_used("-" + toLowerCase(htype)) && ++counter) {
+        if (args->is_used("-" + toLowerCase(htype)) && ++counter)
             hashType = htype;
-        }
-        if (counter > 1) {
-            // If more than one were used show this error message
+
+        if (counter > 1) // If more than one were used show this error message
             printErrMessage("You can chose only one hash type each time!");
-        }
     }
 
-    // If no hash sum was indicated them print err message
-    if (counter == 0) {
+    if (counter == 0) // If no hash sum was indicated them print err message
         printErrMessage("Must specify the type of hash sum!\n\n" + args->help().str() + "\n");
-    }
 
     return hashType;
 }
 
-void shazam::App::parseArguments(const int& argc, const char* const*& argv) {
+void shazam::App::parseArguments(const int& argc, const char* const*& argv)
+{
     try {
         args->parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
@@ -80,18 +80,20 @@ void shazam::App::parseArguments(const int& argc, const char* const*& argv) {
     }
 }
 
-void shazam::App::getAndRegisterInputFiles(std::string hashType) {
+void shazam::App::getAndRegisterInputFiles(std::string hashType)
+{
     try {
         const auto files = args->get<std::vector<std::string>>("files");
-        for (auto& file : files) {
+
+        for (auto& file : files)
             checker->add(fileFactory.create(file), hashType);
-        }
     } catch (const std::logic_error &err) {
         printErrMessage("No files were provided" + args->help().str() + "\n");
     }
 }
 
-int shazam::App::run(const int& argc, const char* const*& argv) {
+int shazam::App::run(const int& argc, const char* const*& argv)
+{
     this->parseArguments(argc, argv);
     this->getAndRegisterInputFiles(this->getHashType());
     checker->setShowProgressBar(args->get<bool>("--progress"));

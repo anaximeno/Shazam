@@ -4,7 +4,6 @@
 
 #include "./include/external/tinytest/tinytest.h"
 
-#include "./include/shazam/shazam.hh"
 #include "./include/shazam/common.hh"
 #include "./include/shazam/files.hh"
 #include "./include/shazam/hash.hh"

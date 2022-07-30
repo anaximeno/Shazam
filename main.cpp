@@ -1,6 +1,6 @@
-#include "include/shazam/shazam.hh"
+#include "include/shazam/app.hh"
 
-#define VERSION "Shazam 1.2"
+#define VERSION "Shazam 2.0"
 
 int main(const int argc, const char* const* argv) {
     shazam::App app(argv[0], VERSION);

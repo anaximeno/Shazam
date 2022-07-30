@@ -28,13 +28,13 @@ HLIB_OBJS = hl_md5.o \
 			hl_sha512wrapper.o \
 			hl_wrapperfactory.o
 
-SHAZAM_FILES = src/shazam.cc \
+SHAZAM_FILES = src/app.cc \
 			   src/common.cc \
 			   src/files.cc  \
 			   src/hash.cc   \
 			   src/checker.cc
 
-SHAZAM_OBJS = shazam.o \
+SHAZAM_OBJS = app.o \
 			  common.o \
 			  files.o  \
 			  hash.o   \
