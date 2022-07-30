@@ -1,9 +1,13 @@
 #include "../include/shazam/common.hh"
 
+#include "../include/external/ProgressBar.hpp"
+
 #include <string>
 #include <algorithm>
 #include <memory>
 #include <iostream>
+
+namespace pgs = progresscpp;
 
 int shazam::hexaToInt(std::string hexadecimalString)
 {
@@ -26,4 +30,44 @@ void shazam::printErrMessage(const std::string& message)
 {
     std::cerr << "Shazam: Err: " << message << std::endl;
     std::exit(1);
+}
+
+void shazam::ProgressObserver::init()
+{
+    const int observables = getObservablesNumber();
+    if (observables > 0) {
+        progressBar = std::make_unique<pgs::ProgressBar>(observables, progressWidth);
+    }
+}
+
+void shazam::ProgressObserver::update()
+{
+    decreaseObervableCounter();
+    if (progressBar != nullptr) {
+        ++( *progressBar );
+        progressBar->display();
+    }
+}
+
+void shazam::ProgressObserver::done()
+{
+    if (progressBar != nullptr) {
+        progressBar->done();
+        std::cout << std::endl;
+    }
+}
+
+void shazam::ProgressObserver::increaseObervableCounter()
+{
+    activeObservables++;
+}
+
+void shazam::ProgressObserver::decreaseObervableCounter()
+{
+    activeObservables--;
+}
+
+int shazam::ProgressObserver::getObservablesNumber()
+{
+    return activeObservables;
 }

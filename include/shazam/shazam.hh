@@ -3,75 +3,18 @@
 
 #include "./basic-types.hh"
 #include "./files.hh"
+#include "./hash.hh"
+#include "./common.hh"
 
 #include "../external/argparse.hpp"
-#include "../external/ProgressBar.hpp"
-#include "../external/hashlib2plus/hl_hashwrapper.h"
-#include "../external/hashlib2plus/hl_wrapperfactory.h"
 
 #include <iostream>
 #include <cassert>
 #include <memory>
 
-namespace pgs = progresscpp;
 namespace ap = argparse;
 
-
 namespace shazam {
-    class ProgressObserver {
-    private:
-        const int progressWidth;
-        int activeObservables;
-        std::unique_ptr<pgs::ProgressBar> progressBar;
-
-    public:
-        void update();
-        void done();
-        void increaseObervableCounter();
-        int getObservablesNumber();
-        void init();
-
-        ProgressObserver(int progressWidth)
-        : progressWidth(progressWidth), activeObservables(0) {  }
-    };
-
-    class Hash {
-        // stores hash sum in different formats
-        template <class T> struct SHashSum {
-            bool wasCalculated;
-            T value;
-        };
-
-        // SHashSum<int> intHashsum{false, 0};
-        SHashSum<std::string> hexHashSum{false, ""};
-        const std::string hashName;
-        const std::shared_ptr<File> file;
-        const std::unique_ptr<hashwrapper> hasher;
-        std::shared_ptr<ProgressObserver> observer;
-
-    public:
-        Hash(std::string hashname, std::unique_ptr<hashwrapper> wrapper, std::shared_ptr<File> file_ptr)
-        : hashName(hashname), file(file_ptr), hasher(std::move(wrapper)) {
-            //
-        }
-
-        void registerObserver(std::shared_ptr<ProgressObserver> obs);
-        void notify(void);
-        void calculate(void);
-        std::string type(void);
-        std::string getStringHashSum(void);
-        // int getIntHashSum(void);
-        std::string getFilePath(void);
-
-    private:
-        std::string calculateHashSum(void);
-    };
-
-    class HashFactory: protected wrapperfactory {
-    public:
-        std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file);
-    };
-
     class Checker {
         bool showProgressBar;
         bool showInvalidFiles;

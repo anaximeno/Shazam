@@ -2,105 +2,19 @@
 #include "../include/shazam/basic-types.hh"
 #include "../include/shazam/common.hh"
 #include "../include/shazam/files.hh"
+#include "../include/shazam/hash.hh"
 
 #include "../include/external/argparse.hpp"
-#include "../include/external/ProgressBar.hpp"
-#include "../include/external/hashlib2plus/hl_hashwrapper.h"
 
 #include <iostream>
-#include <fstream>
 #include <filesystem>
 #include <cassert>
 #include <memory>
 #include <sstream>
 
 namespace fs = std::filesystem;
-namespace pgs = progresscpp;
 namespace ap = argparse;
 
-void shazam::ProgressObserver::update() {
-    activeObservables--;
-    if (progressBar != nullptr) {
-        ++( *progressBar );
-        progressBar->display();
-    }
-}
-
-void shazam::ProgressObserver::done() {
-    if (progressBar != nullptr) {
-        progressBar->done();
-        std::cout << std::endl;
-    }
-}
-
-void shazam::ProgressObserver::increaseObervableCounter() {
-    activeObservables++;
-}
-
-int shazam::ProgressObserver::getObservablesNumber() {
-    return activeObservables;
-}
-
-void shazam::ProgressObserver::init() {
-    const int observables = getObservablesNumber();
-    if (observables > 0) {
-        progressBar = std::make_unique<pgs::ProgressBar>(observables, progressWidth);
-    }
-}
-
-void shazam::Hash::registerObserver(std::shared_ptr<ProgressObserver> obs) {
-    obs->increaseObervableCounter();
-    observer = obs;
-}
-
-void shazam::Hash::notify(void) {
-    observer->update();
-}
-
-void shazam::Hash::calculate(void) {
-    if (!hexHashSum.wasCalculated) {
-        hexHashSum.value = calculateHashSum();
-        hexHashSum.wasCalculated = true;
-    } else {
-        // Do Nothing!
-    }
-}
-
-std::string shazam::Hash::type(void) {
-    return hashName;
-}
-
-std::string shazam::Hash::getStringHashSum(void) {
-    if (!hexHashSum.wasCalculated) {
-        calculate();
-    }
-
-    return hexHashSum.value;
-}
-
-// int shazam::Hash::getIntHashSum(void) {
-//     if (!intHashsum.wasCalculated) {
-//         intHashsum.value = hexaToInt(getStringHashSum());
-//         intHashsum.wasCalculated = true;
-//         return getIntHashSum();
-//     }
-
-//     return intHashsum.value;
-// }
-
-std::string shazam::Hash::getFilePath(void) {
-    return file->path();
-}
-
-std::string shazam::Hash::calculateHashSum(void) {
-    return hasher->getHashFromFile(file->path());
-}
-
-std::shared_ptr<shazam::Hash>
-shazam::HashFactory::hashFile(std::string hashtype, std::shared_ptr<shazam::File> file) {
-    auto wrapper = std::unique_ptr<hashwrapper>(create(hashtype));
-    return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
-}
 
 void shazam::Checker::displayValidHashes() {
     if (!validFilesHashes.empty()) {
