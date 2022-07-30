@@ -1,4 +1,5 @@
 #include "../include/shazam/shazam.hh"
+#include "../include/shazam/basic-types.hh"
 
 #include "../include/external/argparse.hpp"
 #include "../include/external/ProgressBar.hpp"
@@ -16,7 +17,7 @@ namespace pgs = progresscpp;
 namespace ap = argparse;
 
 void shazam::printErrMessage(const std::string& message) {
-    std::cerr << "Shazam: Err: " << message << std::endl;;
+    std::cerr << "Shazam: Err: " << message << std::endl;
     std::exit(1);
 }
 
@@ -210,7 +211,8 @@ std::string shazam::Hash::calculateHashSum(void) {
     return hasher->getHashFromFile(file->path());
 }
 
-std::shared_ptr<shazam::Hash> shazam::HashFactory::hashFile(std::string hashtype, std::shared_ptr<shazam::File> file) {
+std::shared_ptr<shazam::Hash>
+shazam::HashFactory::hashFile(std::string hashtype, std::shared_ptr<shazam::File> file) {
     auto wrapper = std::unique_ptr<hashwrapper>(create(hashtype));
     return std::make_shared<Hash>(hashtype, std::move(wrapper), file);
 }
@@ -283,10 +285,12 @@ void shazam::Checker::displayResults() {
     displayInvalidFiles();
 }
 
-std::list<std::shared_ptr<shazam::Hash>> shazam::Checker::getValidHashesList() {
+std::list<std::shared_ptr<shazam::Hash>>
+shazam::Checker::getValidHashesList() {
     return validFilesHashes;
 }
-std::list<std::shared_ptr<shazam::File>> shazam::Checker::getInvalidFilesList() {
+std::list<std::shared_ptr<shazam::File>>
+shazam::Checker::getInvalidFilesList() {
     return invalidFilesList;
 }
 
@@ -296,7 +300,7 @@ void shazam::App::setupArgparser() {
             .help("path of the files to perform hash sums.")
             .remaining();
 
-    for (auto& htype : HashFactory::HASH_TYPES) {
+    for (auto& htype : HASH_TYPES) {
         const std::string lower = toLowerCase(htype);
         args->add_argument("-" + lower, "--" + lower + "sum")
                 .help("use this to calculate the " + lower + " hash sum")
@@ -316,7 +320,8 @@ void shazam::App::setupArgparser() {
 
     args->add_argument("-c", "--check")
             .help("Use this to check the hash sum")
-            .nargs(1);
+            .default_value(false)
+            .implicit_value(true);
 }
 
 std::string shazam::App::getHashType() {
@@ -324,7 +329,7 @@ std::string shazam::App::getHashType() {
 
     int counter = 0;
     // Searching for all hash types to see if one was used
-    for (auto& htype : HashFactory::HASH_TYPES) {
+    for (auto& htype : HASH_TYPES) {
         if (args->is_used("-" + toLowerCase(htype)) && ++counter) {
             hashType = htype;
         }

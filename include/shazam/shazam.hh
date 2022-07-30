@@ -1,5 +1,7 @@
-#ifndef __SHAZAM_HPP
-#define __SHAZAM_HPP
+#ifndef _SHAZAM_HEADER
+#define _SHAZAM_HEADER
+
+#include "./basic-types.hh"
 
 #include <iostream>
 #include <fstream>
@@ -18,14 +20,6 @@ namespace ap = argparse;
 
 
 namespace shazam {
-    enum EFileStatus {
-        VALID_FILE,
-        NON_EXISTENT,
-        IS_DIRECTORY,
-        NON_PERMISSIVE,
-        NON_READABLE
-    };
-
     std::string explainFileStatus(const EFileStatus status);
 
     int hexaToInt(std::string hexadecimalString);
@@ -114,15 +108,10 @@ namespace shazam {
         std::string calculateHashSum(void);
     };
 
-
     class HashFactory: protected wrapperfactory {
     public:
-        static constexpr std::array<const char*, 5> HASH_TYPES = {
-            "MD5",  "SHA1",  "SHA256", "SHA384",  "SHA512"};
-
         std::shared_ptr<Hash> hashFile(std::string hashtype, std::shared_ptr<File> file);
     };
-
 
     class Checker {
         bool showProgressBar;
