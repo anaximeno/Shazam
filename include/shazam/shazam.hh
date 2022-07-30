@@ -2,6 +2,7 @@
 #define _SHAZAM_HEADER
 
 #include "./basic-types.hh"
+#include "./files.hh"
 
 #include "../external/argparse.hpp"
 #include "../external/ProgressBar.hpp"
@@ -20,37 +21,6 @@ namespace ap = argparse;
 
 
 namespace shazam {
-    std::string explainFileStatus(const EFileStatus status);
-
-    class File {
-        const EFileStatus _status;
-        const std::string _path;
-
-    public:
-        File(std::string path, EFileStatus status)
-        : _status(status), _path(path) {  }
-        std::string path() const;
-        EFileStatus status() const;
-        std::string explainStatus() const;
-        bool isValid() const;
-        int size();
-    };
-
-
-    class FileFactory {
-    private:
-        bool fileExists(fs::file_status filestatus);
-        bool fileIsNotDirectory(fs::file_status filestatus);
-        bool fileIsPermissive(fs::file_status filestatus);
-        bool fileIsReadable(std::string path);
-
-    protected:
-        EFileStatus fileValidStatus(std::string path);
-
-    public:
-        std::shared_ptr<File> create(std::string path);
-    };
-
     class ProgressObserver {
     private:
         const int progressWidth;
