@@ -65,11 +65,12 @@ shazam::FileHashSumComparationResult shazam::HashComparator::compareHashes()
 shazam::ComparationResult
 shazam::HashComparator::makeComparation(std::string original, std::string current)
 {
-    const auto _orig_ull = hexaToInt(original);
-    const auto _curr_ull = hexaToInt(current);
-
-    if (_orig_ull == _curr_ull)
-        return MATCH;
-    else
+    /* Initially I wanted to convert the values to int, but I didn't make it that way,
+     * because the hexadecimal values are exceeding the maximum bound of value (unsigned long long).
+     * */
+    // TODO: update check algorithm to a more secure one
+    if (original != current)
         return NOT_MATCH;
+    else
+        return MATCH;
 }
