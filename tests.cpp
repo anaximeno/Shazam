@@ -72,7 +72,7 @@ void test_md5sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("MD5", ffactory.create(VALID_FILE_S_PATH));
-    const std::string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->get().hashSum;
 
     ASSERT("Testing MD5 hash sum", VALID_FILE_S_MD5SUM == CALCULATED);
 }
@@ -82,7 +82,7 @@ void test_sha1sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA1", ffactory.create(VALID_FILE_S_PATH));
-    const std::string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->get().hashSum;
 
     ASSERT("Testing SHA1 hash sum", VALID_FILE_S_SHA1SUM == CALCULATED);
 }
@@ -92,7 +92,7 @@ void test_sha256sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA256", ffactory.create(VALID_FILE_S_PATH));
-    const std::string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->get().hashSum;
 
     ASSERT("Testing SHA256 hash sum", VALID_FILE_S_SHA256SUM == CALCULATED);
 }
@@ -102,7 +102,7 @@ void test_sha384sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA384", ffactory.create(VALID_FILE_S_PATH));
-    const std::string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->get().hashSum;
 
     ASSERT("Testing SHA384 hash sum", VALID_FILE_S_SHA384SUM == CALCULATED);
 }
@@ -112,7 +112,7 @@ void test_sha512sum() {
     shazam::FileFactory ffactory;
 
     const auto hash = hfactory.hashFile("SHA512", ffactory.create(VALID_FILE_S_PATH));
-    const std::string CALCULATED = hash->getStringHashSum();
+    const std::string CALCULATED = hash->get().hashSum;
 
     ASSERT("Testing SHA512 hash sum", VALID_FILE_S_SHA512SUM == CALCULATED);
 }
@@ -213,8 +213,8 @@ void test_checker_hash_sum_calculation() {
 
     const auto sha256 = list.front();
     const auto sha1 = list.back();
-    ASSERT("Testing Checker sha1sum result", sha1->getStringHashSum() == VALID_FILE_S_SHA1SUM);
-    ASSERT("Testing Checker sha256sum result", sha256->getStringHashSum() == VALID_FILE_S_SHA256SUM);
+    ASSERT("Testing Checker sha1sum result", sha1->get().hashSum == VALID_FILE_S_SHA1SUM);
+    ASSERT("Testing Checker sha256sum result", sha256->get().hashSum == VALID_FILE_S_SHA256SUM);
 }
 
 // -------------- END Testing Checker ----------------------------------------------------

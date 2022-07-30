@@ -18,12 +18,16 @@ std::string shazam::HashCalculator::type(void)
     return hashName;
 }
 
-std::string shazam::HashCalculator::getStringHashSum(void)
+shazam::HashSum shazam::HashCalculator::get(void)
 {
     if (hashSum == "")
         calculate();
-    // TODO: update to return the HashSum struct
-    return hashSum;
+
+    return HashSum {
+        .filename = file->path(),
+        .hashType = hashName,
+        .hashSum = hashSum
+    };
 }
 
 std::string shazam::HashCalculator::getFilePath(void)

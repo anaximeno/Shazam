@@ -11,7 +11,7 @@ void shazam::Checker::displayValidHashes()
 {
     if (!validFilesHashes.empty()) {
         for (auto& hash : validFilesHashes) {
-            std::cout << hash->getStringHashSum() << " ";
+            std::cout << hash->get().hashSum << " ";
             std::cout << hash->getFilePath() << "\n";
         }
     }

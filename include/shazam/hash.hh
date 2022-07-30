@@ -30,7 +30,7 @@ namespace shazam {
         std::string type(void);
 
         /* Returns the calculated hash sum. */
-        std::string getStringHashSum(void);
+        HashSum get(void);
 
         /* Returns the path of the file being used. */
         std::string getFilePath(void);
