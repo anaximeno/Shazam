@@ -1,6 +1,7 @@
 #ifndef _SHAZAM_HASH_HEADER
 #define _SHAZAM_HASH_HEADER
 
+#include "./basic-types.hh"
 #include "./common.hh"
 #include "./files.hh"
 
@@ -37,6 +38,22 @@ namespace shazam {
     private:
         /* Makes the calculation of the hash sum and returns the result. */
         std::string calculateHashSum(void);
+    };
+
+    class HashComparator: public IAmObservable {
+        const HashSum originalHashSum;
+        const HashSum currentHashSum;
+
+    public:
+        HashComparator(HashSum originalHashSum, HashSum currentHashSum)
+        : originalHashSum(originalHashSum), currentHashSum(currentHashSum) {}
+
+        /* Comparest the hashes and returns the result. */
+        FileHashSumComparationResult compareHashes(void);
+
+    private:
+        /* Makes the comparation and returns the result. */
+        ComparationResult makeComparation(std::string original, std::string current);
     };
 
     class HashFactory: protected wrapperfactory {
