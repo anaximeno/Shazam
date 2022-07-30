@@ -1,7 +1,6 @@
 #ifndef _SHAZAM_BASIC_TYPES_HEADER
 #define _SHAZAM_BASIC_TYPES_HEADER
 
-#include <iostream>
 #include <string>
 #include <memory>
 
