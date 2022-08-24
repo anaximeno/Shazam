@@ -62,7 +62,7 @@ shazam::FileHashSumComparationResult shazam::HashCalculator::compareHashes(
     const HashSum currentHashSum = get();
     const std::string original = originalHashSum.hashSum;
     const std::string current = currentHashSum.hashSum;
-    const ComparationResult result = makeComparation(original, current);
+    const ComparationResult result = compare(original, current);
 
     return FileHashSumComparationResult {
         .filename = currentHashSum.filename,
@@ -73,3 +73,15 @@ shazam::FileHashSumComparationResult shazam::HashCalculator::compareHashes(
     };
 }
 
+shazam::ComparationResult
+shazam::HashComparator::compare(std::string original, std::string current)
+{
+    /* Initially I wanted to convert the values to int, but I didn't make it that way,
+     * because the hexadecimal values are exceeding the maximum bound of value (unsigned long long).
+     * */
+    // TODO: update check algorithm to a more secure one
+    if (original != current)
+        return NOT_MATCH;
+    else
+        return MATCH;
+}

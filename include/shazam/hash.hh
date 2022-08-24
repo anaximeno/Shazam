@@ -43,6 +43,21 @@ namespace shazam {
         std::string calculateHashSum(void);
     };
 
+    class HashComparator: public IAmObservable {
+        const HashSum originalHashSum;
+        const HashSum currentHashSum;
+
+    public:
+        HashComparator(HashSum originalHashSum, HashSum currentHashSum)
+        : originalHashSum(originalHashSum), currentHashSum(currentHashSum) {}
+
+        /* Comparest the hashes and returns the result. */
+        FileHashSumComparationResult compareHashes(void);
+
+    private:
+        /* Makes the comparation and returns the result. */
+        ComparationResult compare(std::string original, std::string current);
+    };
 
     class HashFactory: protected wrapperfactory {
     public:
